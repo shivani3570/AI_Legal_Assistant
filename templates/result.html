@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Legal Document Analysis | AI Legal Assistant</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 10% 10%, rgba(99,102,241,0.18), transparent 30%),
+                radial-gradient(circle at 90% 20%, rgba(14,165,233,0.15), transparent 30%),
+                linear-gradient(135deg, #f8fafc, #eef2ff);
+            color: #172033;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .header {
+            padding: 35px 20px 15px;
+            text-align: center;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 17px;
+            font-weight: 700;
+            color: #4f46e5;
+            margin-bottom: 15px;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 8px 20px rgba(79,70,229,0.25);
+        }
+
+        h1 {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 17px;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .container {
+            width: min(1150px, 92%);
+            margin: 30px auto 60px;
+        }
+
+        /* =========================
+           CARDS
+        ========================= */
+
+        .card {
+            background: rgba(255,255,255,0.88);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.9);
+            border-radius: 22px;
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow:
+                0 15px 45px rgba(15,23,42,0.08),
+                0 2px 8px rgba(15,23,42,0.04);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                0 20px 55px rgba(15,23,42,0.11),
+                0 4px 12px rgba(15,23,42,0.05);
+        }
+
+        /* =========================
+           CARD HEADER
+        ========================= */
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: #eef2ff;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 750;
+        }
+
+        .card-description {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* =========================
+           LANGUAGE
+        ========================= */
+
+        .language-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+        }
+
+        .language-label {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .language-value {
+            font-weight: 700;
+            color: #4f46e5;
+            text-transform: capitalize;
+        }
+
+        /* =========================
+           AI EXPLANATION
+        ========================= */
+
+        .ai-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(
+                90deg,
+                #4f46e5,
+                #7c3aed,
+                #06b6d4
+            );
+        }
+
+        .ai-content {
+            padding: 22px;
+            background: linear-gradient(
+                135deg,
+                #f5f3ff,
+                #eef2ff
+            );
+            border: 1px solid #e0e7ff;
+            border-radius: 16px;
+            line-height: 1.8;
+            color: #334155;
+            white-space: pre-wrap;
+        }
+
+        /* =========================
+           DOCUMENT TEXT
+        ========================= */
+
+        .document-content {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 24px;
+            max-height: 430px;
+            overflow-y: auto;
+            line-height: 1.8;
+            color: #334155;
+            white-space: pre-wrap;
+            font-size: 15px;
+        }
+
+        .document-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .document-content::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+
+        .document-content::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        /* =========================
+           LISTEN CONTROLS
+        ========================= */
+
+        .listen-section {
+            margin-top: 22px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .listen-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 13px;
+        }
+
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            border-radius: 11px;
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: 650;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .play {
+            background: #4f46e5;
+            color: white;
+            box-shadow: 0 7px 18px rgba(79,70,229,0.22);
+        }
+
+        .pause {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .resume {
+            background: #10b981;
+            color: white;
+        }
+
+        .replay {
+            background: #0ea5e9;
+            color: white;
+        }
+
+        .stop {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* =========================
+           STATUS
+        ========================= */
+
+        .status {
+            text-align: center;
+            margin-top: 15px;
+            color: #64748b;
+            font-size: 13px;
+            min-height: 20px;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        .footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            padding: 10px 20px 35px;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 700px) {
+
+            h1 {
+                font-size: 31px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+            }
+
+            .container {
+                width: 94%;
+                margin-top: 20px;
+            }
+
+            .card {
+                padding: 20px;
+                border-radius: 18px;
+            }
+
+            .card-title {
+                font-size: 20px;
+            }
+
+            .language-box {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 7px;
+            }
+
+            .button-row {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     HEADER
+========================= -->
+
+<header class="header">
+
+    <div class="logo">
+
+        <div class="logo-icon">
+            ⚖️
+        </div>
+
+        AI Legal Assistant
+
+    </div>
+
+    <h1>
+        Legal Document Analysis
+    </h1>
+
+    <p class="subtitle">
+        Understand your legal document with your AI-powered assistant
+    </p>
+
+</header>
+
+
+<!-- =========================
+     MAIN
+========================= -->
+
+<main class="container">
+
+
+    <!-- DOCUMENT INFORMATION -->
+
+    <section class="card">
+
+        <div class="card-header">
+
+            <div class="card-icon">
+                📄
+            </div>
+
+            <div>
+
+                <div class="card-title">
+                    Document Information
+                </div>
+
+                <div class="card-description">
+                    Details about your uploaded document
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="language-box">
+
+            <div class="language-label">
+                Selected Language
+            </div>
+
+            <div class="language-value">
+                {{ language }}
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- AI EXPLANATION -->
+
+    <section class="card ai-card">
+
+        <div class="card-header">
+
+            <div class="card-icon">
+                🤖
+            </div>
+
+            <div>
+
+                <div class="card-title">
+                    AI Explanation
+                </div>
+
+                <div class="card-description">
+                    Simplified explanation of your legal document
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="ai-content" id="aiExplanation">
+
+            {{ explanation }}
+
+        </div>
+
+
+        <div class="listen-section">
+
+            <div class="listen-title">
+                🔊 Listen to AI Explanation
+            </div>
+
+            <div class="button-row">
+
+                <button
+                    class="play"
+                    onclick="playExplanation()"
+                >
+                    ▶ Play
+                </button>
+
+                <button
+                    class="pause"
+                    onclick="pauseSpeech()"
+                >
+                    ⏸ Pause
+                </button>
+
+                <button
+                    class="resume"
+                    onclick="resumeSpeech()"
+                >
+                    ▶ Resume
+                </button>
+
+                <button
+                    class="replay"
+                    onclick="replayExplanation()"
+                >
+                    🔄 Replay
+                </button>
+
+                <button
+                    class="stop"
+                    onclick="stopSpeech()"
+                >
+                    ⏹ Stop
+                </button>
+
+            </div>
+
+            <div
+                class="status"
+                id="speechStatus"
+            >
+                Ready to read the explanation aloud.
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- EXTRACTED DOCUMENT -->
+
+    <section class="card">
+
+        <div class="card-header">
+
+            <div class="card-icon">
+                📑
+            </div>
+
+            <div>
+
+                <div class="card-title">
+                    Extracted Document Text
+                </div>
+
+                <div class="card-description">
+                    Text extracted from your uploaded document
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="document-content"
+            id="documentText"
+        >
+            {{ text }}
+        </div>
+
+
+        <div class="listen-section">
+
+            <div class="listen-title">
+                🔊 Listen to Document
+            </div>
+
+            <div class="button-row">
+
+                <button
+                    class="play"
+                    onclick="playDocument()"
+                >
+                    ▶ Play
+                </button>
+
+                <button
+                    class="pause"
+                    onclick="pauseSpeech()"
+                >
+                    ⏸ Pause
+                </button>
+
+                <button
+                    class="resume"
+                    onclick="resumeSpeech()"
+                >
+                    ▶ Resume
+                </button>
+
+                <button
+                    class="replay"
+                    onclick="replayDocument()"
+                >
+                    🔄 Replay
+                </button>
+
+                <button
+                    class="stop"
+                    onclick="stopSpeech()"
+                >
+                    ⏹ Stop
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer class="footer">
+
+    AI Legal Assistant • Document Analysis
+
+</footer>
+
+
+<script>
+
+    /* =========================================
+       TEXT TO SPEECH
+    ========================================= */
+
+    let speech = null;
+
+    let currentText = "";
+
+
+    function getLanguageCode() {
+
+        const language =
+            "{{ language }}".toLowerCase();
+
+        const codes = {
+
+            english: "en-IN",
+            hindi: "hi-IN",
+            kannada: "kn-IN",
+            tamil: "ta-IN",
+            telugu: "te-IN",
+            malayalam: "ml-IN"
+
+        };
+
+        return codes[language] || "en-IN";
+
+    }
+
+
+    function speak(text) {
+
+        if (!("speechSynthesis" in window)) {
+
+            document.getElementById(
+                "speechStatus"
+            ).textContent =
+                "Speech synthesis is not supported in this browser.";
+
+            return;
+
+        }
+
+
+        window.speechSynthesis.cancel();
+
+
+        currentText = text;
+
+
+        speech =
+            new SpeechSynthesisUtterance(
+                text
+            );
+
+
+        speech.lang =
+            getLanguageCode();
+
+
+        speech.rate = 0.9;
+
+        speech.pitch = 1;
+
+
+        speech.onstart = function() {
+
+            document.getElementById(
+                "speechStatus"
+            ).textContent =
+                "🔊 Reading aloud...";
+
+        };
+
+
+        speech.onend = function() {
+
+            document.getElementById(
+                "speechStatus"
+            ).textContent =
+                "✅ Reading completed.";
+
+        };
+
+
+        window.speechSynthesis.speak(
+            speech
+        );
+
+    }
+
+
+    /* =========================================
+       AI EXPLANATION
+    ========================================= */
+
+    function playExplanation() {
+
+        const text =
+            document.getElementById(
+                "aiExplanation"
+            ).innerText;
+
+        speak(text);
+
+    }
+
+
+    function replayExplanation() {
+
+        playExplanation();
+
+    }
+
+
+    /* =========================================
+       DOCUMENT
+    ========================================= */
+
+    function playDocument() {
+
+        const text =
+            document.getElementById(
+                "documentText"
+            ).innerText;
+
+        speak(text);
+
+    }
+
+
+    function replayDocument() {
+
+        playDocument();
+
+    }
+
+
+    /* =========================================
+       PAUSE
+    ========================================= */
+
+    function pauseSpeech() {
+
+        if (
+            "speechSynthesis" in window &&
+            window.speechSynthesis.speaking
+        ) {
+
+            window.speechSynthesis.pause();
+
+            document.getElementById(
+                "speechStatus"
+            ).textContent =
+                "⏸ Speech paused.";
+
+        }
+
+    }
+
+
+    /* =========================================
+       RESUME
+    ========================================= */
+
+    function resumeSpeech() {
+
+        if (
+            "speechSynthesis" in window
+        ) {
+
+            window.speechSynthesis.resume();
+
+            document.getElementById(
+                "speechStatus"
+            ).textContent =
+                "▶ Speech resumed.";
+
+        }
+
+    }
+
+
+    /* =========================================
+       STOP
+    ========================================= */
+
+    function stopSpeech() {
+
+        if (
+            "speechSynthesis" in window
+        ) {
+
+            window.speechSynthesis.cancel();
+
+            document.getElementById(
+                "speechStatus"
+            ).textContent =
+                "⏹ Speech stopped.";
+
+        }
+
+    }
+
+
+</script>
+
+
+</body>
+
+</html>

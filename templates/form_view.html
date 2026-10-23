@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Form Filling Assistant</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+    <h1>Smart Form Filling Assistant</h1>
+
+    <p>
+        <strong>Selected Language:</strong>
+        {{ language }}
+    </p>
+
+
+    <div class="card">
+
+        <h2>Form</h2>
+
+
+        <!-- FILLING OPTIONS -->
+
+        <div class="assistant-options">
+
+            <h3>
+                How would you like to fill the form?
+            </h3>
+
+
+            <a href="{{ form_url }}"
+               target="_blank"
+               class="form-option-button">
+
+                ✍️ Fill Manually
+
+            </a>
+
+
+            <button type="button"
+                    onclick="startAssistant()"
+                    class="form-option-button">
+
+                🤖 Use Smart Assistant
+
+            </button>
+
+        </div>
+
+
+
+        <!-- SMART ASSISTANT -->
+
+        <div id="assistantPanel"
+             style="display: none;">
+
+            <h3>
+                🤖 Smart Form Assistant
+            </h3>
+
+
+            <p id="assistantMessage">
+
+                Smart Assistant is ready.
+
+            </p>
+
+
+            <input type="text"
+                   id="assistantInput"
+                   placeholder="Type your answer here">
+
+
+            <button type="button"
+                    onclick="startVoiceInput()">
+
+                🎤 Speak Answer
+
+            </button>
+
+
+            <button type="button"
+                    onclick="sendAnswer()">
+
+                Submit Answer
+
+            </button>
+
+
+            <button type="button"
+                    onclick="stopAssistant()">
+
+                Stop Assistant
+
+            </button>
+
+        </div>
+
+
+
+        <!-- ACTUAL FORM -->
+
+        <iframe
+            src="{{ form_url }}"
+            width="100%"
+            height="700"
+            frameborder="0">
+
+        </iframe>
+
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+
+/* ==========================================
+   LANGUAGE
+========================================== */
+
+const language = "{{ language }}";
+
+
+
+/* ==========================================
+   QUESTIONS
+========================================== */
+
+let questions;
+
+
+if (language === "kannada") {
+
+    questions = [
+
+        {
+            question: "ನಿಮ್ಮ ಪೂರ್ಣ ಹೆಸರು ಏನು?",
+            type: "name"
+        },
+
+        {
+            question: "ನಿಮ್ಮ ಇಮೇಲ್ ವಿಳಾಸ ಏನು?",
+            type: "email"
+        },
+
+        {
+            question: "ನಿಮ್ಮ ಫೋನ್ ಸಂಖ್ಯೆ ಏನು?",
+            type: "phone"
+        },
+
+        {
+            question: "ನಿಮ್ಮ ವಿಳಾಸ ಏನು?",
+            type: "address"
+        }
+
+    ];
+
+}
+
+
+else if (language === "hindi") {
+
+    questions = [
+
+        {
+            question: "आपका पूरा नाम क्या है?",
+            type: "name"
+        },
+
+        {
+            question: "आपका ईमेल पता क्या है?",
+            type: "email"
+        },
+
+        {
+            question: "आपका फोन नंबर क्या है?",
+            type: "phone"
+        },
+
+        {
+            question: "आपका पता क्या है?",
+            type: "address"
+        }
+
+    ];
+
+}
+
+
+else {
+
+    questions = [
+
+        {
+            question: "What is your full name?",
+            type: "name"
+        },
+
+        {
+            question: "What is your email address?",
+            type: "email"
+        },
+
+        {
+            question: "What is your phone number?",
+            type: "phone"
+        },
+
+        {
+            question: "What is your address?",
+            type: "address"
+        }
+
+    ];
+
+}
+
+
+
+/* ==========================================
+   VARIABLES
+========================================== */
+
+let currentQuestion = 0;
+
+let answers = {};
+
+let recognition = null;
+
+
+/*
+   Structured form data.
+
+   These values will be used in the
+   next stage for automatic form filling.
+*/
+
+let formData = {
+
+    name: "",
+
+    email: "",
+
+    phone: "",
+
+    address: ""
+
+};
+
+
+
+/* ==========================================
+   START ASSISTANT
+========================================== */
+
+function startAssistant() {
+
+    document.getElementById(
+        "assistantPanel"
+    ).style.display = "block";
+
+
+    currentQuestion = 0;
+
+    answers = {};
+
+
+    formData = {
+
+        name: "",
+
+        email: "",
+
+        phone: "",
+
+        address: ""
+
+    };
+
+
+    document.getElementById(
+        "assistantInput"
+    ).style.display = "inline-block";
+
+
+    askNextQuestion();
+
+}
+
+
+
+/* ==========================================
+   ASK NEXT QUESTION
+========================================== */
+
+function askNextQuestion() {
+
+
+    if (currentQuestion < questions.length) {
+
+
+        const currentField =
+            questions[currentQuestion];
+
+
+        const question =
+            currentField.question;
+
+
+        document.getElementById(
+            "assistantMessage"
+        ).innerText =
+            "🤖 Smart Assistant: " +
+            question;
+
+
+        document.getElementById(
+            "assistantInput"
+        ).value = "";
+
+
+        document.getElementById(
+            "assistantInput"
+        ).focus();
+
+
+        document.querySelector(
+            "#assistantPanel button[onclick='sendAnswer()']"
+        ).style.display =
+            "inline-block";
+
+
+        document.querySelector(
+            "#assistantPanel button[onclick='startVoiceInput()']"
+        ).style.display =
+            "inline-block";
+
+
+        speakQuestion(question);
+
+    }
+
+    else {
+
+        showSummary();
+
+    }
+
+}
+
+
+
+/* ==========================================
+   VOICE OUTPUT
+========================================== */
+
+function speakQuestion(text) {
+
+
+    if (!("speechSynthesis" in window)) {
+
+        return;
+
+    }
+
+
+    window.speechSynthesis.cancel();
+
+
+    const speech =
+        new SpeechSynthesisUtterance(text);
+
+
+    if (language === "hindi") {
+
+        speech.lang = "hi-IN";
+
+    }
+
+    else if (language === "kannada") {
+
+        speech.lang = "kn-IN";
+
+    }
+
+    else {
+
+        speech.lang = "en-IN";
+
+    }
+
+
+    speech.rate = 0.9;
+
+    speech.pitch = 1;
+
+
+    window.speechSynthesis.speak(speech);
+
+}
+
+
+
+/* ==========================================
+   VOICE INPUT
+========================================== */
+
+function startVoiceInput() {
+
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+
+    if (!SpeechRecognition) {
+
+        alert(
+            "Voice input is not supported in this browser."
+        );
+
+        return;
+
+    }
+
+
+    if (recognition) {
+
+        recognition.stop();
+
+    }
+
+
+    recognition =
+        new SpeechRecognition();
+
+
+    if (language === "hindi") {
+
+        recognition.lang = "hi-IN";
+
+    }
+
+    else if (language === "kannada") {
+
+        recognition.lang = "kn-IN";
+
+    }
+
+    else {
+
+        recognition.lang = "en-IN";
+
+    }
+
+
+    recognition.continuous = false;
+
+    recognition.interimResults = false;
+
+
+    document.getElementById(
+        "assistantMessage"
+    ).innerText =
+        "🎤 Listening... Please speak your answer.";
+
+
+    if ("speechSynthesis" in window) {
+
+        window.speechSynthesis.cancel();
+
+    }
+
+
+    recognition.start();
+
+
+    recognition.onresult =
+        function(event) {
+
+
+            const spokenAnswer =
+                event
+                .results[0][0]
+                .transcript;
+
+
+            document.getElementById(
+                "assistantInput"
+            ).value =
+                spokenAnswer;
+
+
+            document.getElementById(
+                "assistantMessage"
+            ).innerText =
+                "✅ Answer captured: " +
+                spokenAnswer;
+
+        };
+
+
+    recognition.onerror =
+        function() {
+
+
+            document.getElementById(
+                "assistantMessage"
+            ).innerText =
+                "❌ Could not capture your voice. Please try again.";
+
+        };
+
+
+    recognition.onend =
+        function() {
+
+            recognition = null;
+
+        };
+
+}
+
+
+
+/* ==========================================
+   SEND ANSWER
+========================================== */
+
+function sendAnswer() {
+
+
+    const answer =
+        document
+        .getElementById("assistantInput")
+        .value
+        .trim();
+
+
+    if (answer === "") {
+
+        showWarning(
+            "Please provide an answer."
+        );
+
+        return;
+
+    }
+
+
+    const currentField =
+        questions[currentQuestion];
+
+
+    const validationResult =
+        validateAnswer(
+            answer,
+            currentField.type
+        );
+
+
+    if (!validationResult.valid) {
+
+
+        showWarning(
+            validationResult.message
+        );
+
+
+        speakQuestion(
+            validationResult.message
+        );
+
+
+        return;
+
+    }
+
+
+    /*
+       Answer passed validation.
+       Store it in both answers and formData.
+    */
+
+    answers[currentQuestion] =
+        answer;
+
+
+    const fieldType =
+        currentField.type;
+
+
+    if (fieldType === "name") {
+
+        formData.name = answer;
+
+    }
+
+    else if (fieldType === "email") {
+
+        formData.email = answer;
+
+    }
+
+    else if (fieldType === "phone") {
+
+        formData.phone = answer;
+
+    }
+
+    else if (fieldType === "address") {
+
+        formData.address = answer;
+
+    }
+
+
+    currentQuestion++;
+
+
+    askNextQuestion();
+
+}
+
+
+
+/* ==========================================
+   ANSWER VALIDATION
+========================================== */
+
+function validateAnswer(answer, type) {
+
+
+    /* NAME */
+
+    if (type === "name") {
+
+
+        const namePattern =
+            /^[A-Za-z\u0900-\u097F\u0C80-\u0CFF\s.]+$/;
+
+
+        if (!namePattern.test(answer)) {
+
+
+            return {
+
+                valid: false,
+
+                message:
+                    "Please enter a valid name."
+
+            };
+
+        }
+
+    }
+
+
+
+    /* EMAIL */
+
+    if (type === "email") {
+
+
+        const emailPattern =
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+        if (!emailPattern.test(answer)) {
+
+
+            return {
+
+                valid: false,
+
+                message:
+                    "Please check your email address and try again."
+
+            };
+
+        }
+
+    }
+
+
+
+    /* PHONE */
+
+    if (type === "phone") {
+
+
+        const phonePattern =
+            /^[0-9]{10}$/;
+
+
+        if (!phonePattern.test(answer)) {
+
+
+            return {
+
+                valid: false,
+
+                message:
+                    "Please enter a valid 10 digit phone number."
+
+            };
+
+        }
+
+    }
+
+
+
+    /* ADDRESS */
+
+    if (type === "address") {
+
+
+        if (answer.length < 5) {
+
+
+            return {
+
+                valid: false,
+
+                message:
+                    "Please provide a more complete address."
+
+            };
+
+        }
+
+    }
+
+
+
+    return {
+
+        valid: true,
+
+        message: "Valid answer"
+
+    };
+
+}
+
+
+
+/* ==========================================
+   WARNING
+========================================== */
+
+function showWarning(message) {
+
+
+    document.getElementById(
+        "assistantMessage"
+    ).innerText =
+        "⚠️ " + message;
+
+}
+
+
+
+/* ==========================================
+   FINAL SUMMARY
+========================================== */
+
+function showSummary() {
+
+
+    let summary;
+
+
+    if (language === "kannada") {
+
+
+        summary =
+            "✅ ಮಾಹಿತಿ ಯಶಸ್ವಿಯಾಗಿ ಸಂಗ್ರಹಿಸಲಾಗಿದೆ.\n\n";
+
+
+        summary +=
+            "ಹೆಸರು: " +
+            formData.name +
+            "\n";
+
+
+        summary +=
+            "ಇಮೇಲ್: " +
+            formData.email +
+            "\n";
+
+
+        summary +=
+            "ಫೋನ್: " +
+            formData.phone +
+            "\n";
+
+
+        summary +=
+            "ವಿಳಾಸ: " +
+            formData.address;
+
+    }
+
+
+    else if (language === "hindi") {
+
+
+        summary =
+            "✅ जानकारी सफलतापूर्वक एकत्र की गई है।\n\n";
+
+
+        summary +=
+            "नाम: " +
+            formData.name +
+            "\n";
+
+
+        summary +=
+            "ईमेल: " +
+            formData.email +
+            "\n";
+
+
+        summary +=
+            "फोन: " +
+            formData.phone +
+            "\n";
+
+
+        summary +=
+            "पता: " +
+            formData.address;
+
+    }
+
+
+    else {
+
+
+        summary =
+            "✅ Information collected successfully.\n\n";
+
+
+        summary +=
+            "Name: " +
+            formData.name +
+            "\n";
+
+
+        summary +=
+            "Email: " +
+            formData.email +
+            "\n";
+
+
+        summary +=
+            "Phone: " +
+            formData.phone +
+            "\n";
+
+
+        summary +=
+            "Address: " +
+            formData.address;
+
+    }
+
+
+    document.getElementById(
+        "assistantMessage"
+    ).innerText =
+        summary;
+
+
+    document.getElementById(
+        "assistantInput"
+    ).style.display =
+        "none";
+
+
+    document.querySelector(
+        "#assistantPanel button[onclick='sendAnswer()']"
+    ).style.display =
+        "none";
+
+
+    document.querySelector(
+        "#assistantPanel button[onclick='startVoiceInput()']"
+    ).style.display =
+        "none";
+
+}
+
+
+
+/* ==========================================
+   STOP ASSISTANT
+========================================== */
+
+function stopAssistant() {
+
+
+    if (recognition) {
+
+        recognition.stop();
+
+        recognition = null;
+
+    }
+
+
+    if ("speechSynthesis" in window) {
+
+        window.speechSynthesis.cancel();
+
+    }
+
+
+    document.getElementById(
+        "assistantPanel"
+    ).style.display =
+        "none";
+
+}
+
+</script>
+
+
+</body>
+
+</html>

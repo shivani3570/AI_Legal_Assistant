@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Smart Assistant</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .field-box {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+
+        .question {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .field-name {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+
+        .primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .success {
+            background: #16a34a;
+            color: white;
+        }
+
+        .danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .secondary {
+            background: #64748b;
+            color: white;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .confirmation {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #fff7ed;
+            border-radius: 10px;
+        }
+
+        .error {
+            color: #dc2626;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .completed {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: #ecfdf5;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .review-box {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+
+        .review-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .review-item:last-child {
+            border-bottom: none;
+        }
+
+        .options-box {
+            margin-top: 10px;
+        }
+
+        .option-item {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <h1>
+        🤖 Smart Assistant
+    </h1>
+
+
+    <div
+        class="status"
+        id="statusText"
+    >
+        Ready
+    </div>
+
+
+    <div
+        class="field-box"
+        id="fieldBox"
+    >
+
+        <div
+            class="question"
+            id="questionText"
+        >
+            Loading...
+        </div>
+
+
+        <div
+            class="field-name"
+            id="fieldName"
+        >
+            Form field:
+        </div>
+
+
+        <div id="answerArea">
+
+            <input
+                type="text"
+                id="answerInput"
+                placeholder="Enter your answer"
+            >
+
+        </div>
+
+
+        <div
+            class="error"
+            id="errorText"
+        ></div>
+
+
+        <br>
+
+
+        <button
+            class="primary"
+            onclick="submitTypedAnswer()"
+        >
+            Submit Answer
+        </button>
+
+
+        <button
+            class="secondary"
+            onclick="repeatQuestion()"
+        >
+            🔊 Repeat
+        </button>
+
+
+        <button
+            class="secondary"
+            onclick="startListening()"
+        >
+            🎤 Speak
+        </button>
+
+    </div>
+
+
+    <div
+        class="confirmation"
+        id="confirmationBox"
+    >
+
+        <h3>
+            Please confirm your answer
+        </h3>
+
+
+        <p id="confirmationText"></p>
+
+
+        <button
+            class="success"
+            onclick="confirmAnswer()"
+        >
+            ✅ Yes, Correct
+        </button>
+
+
+        <button
+            class="danger"
+            onclick="editAnswer()"
+        >
+            ✏️ Edit
+        </button>
+
+    </div>
+
+
+    <div
+        class="completed"
+        id="completedSection"
+    >
+
+        <h2>
+            ✅ All Fields Completed
+        </h2>
+
+
+        <p>
+            The assistant has collected and confirmed
+            answers for all detected fields.
+        </p>
+
+
+        <button
+            class="primary"
+            onclick="reviewAnswers()"
+        >
+            Review Answers
+        </button>
+
+
+        <br>
+
+
+        <button
+            class="success"
+            id="submitOriginalButton"
+            onclick="submitOriginalForm()"
+        >
+            🚀 Submit Original Form
+        </button>
+
+    </div>
+
+
+    <div
+        class="review-box"
+        id="reviewBox"
+    >
+
+        <h3>
+            📋 Your Answers
+        </h3>
+
+
+        <div
+            id="reviewContent"
+        ></div>
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+
+// ============================================================
+// DATA FROM FLASK
+// ============================================================
+
+const formFields =
+    {{ fields | tojson }};
+
+const originalFormUrl =
+    {{ form_url | tojson }};
+
+const language =
+    {{ language | tojson }};
+
+
+// ============================================================
+// VARIABLES
+// ============================================================
+
+let currentIndex = 0;
+
+let currentAnswer = "";
+
+let answers = {};
+
+let recognition = null;
+
+let isListening = false;
+
+
+// ============================================================
+// LANGUAGE
+// ============================================================
+
+const languageCodes = {
+
+    english: "en-IN",
+
+    hindi: "hi-IN",
+
+    kannada: "kn-IN",
+
+    tamil: "ta-IN",
+
+    telugu: "te-IN",
+
+    malayalam: "ml-IN"
+
+};
+
+
+// ============================================================
+// FIELD LABEL
+// ============================================================
+
+function getFieldLabel(field) {
+
+    return (
+        field.label ||
+        field.name ||
+        field.id ||
+        "this field"
+    );
+
+}
+
+
+// ============================================================
+// STATUS
+// ============================================================
+
+function setStatus(message) {
+
+    document.getElementById(
+        "statusText"
+    ).textContent = message;
+
+}
+
+
+// ============================================================
+// ERROR
+// ============================================================
+
+function showError(message) {
+
+    document.getElementById(
+        "errorText"
+    ).textContent = message;
+
+}
+
+
+// ============================================================
+// CLEAR ERROR
+// ============================================================
+
+function clearError() {
+
+    document.getElementById(
+        "errorText"
+    ).textContent = "";
+
+}
+
+
+// ============================================================
+// START
+// ============================================================
+
+window.onload = function() {
+
+    if (!formFields || formFields.length === 0) {
+
+        setStatus(
+            "No form fields detected."
+        );
+
+        speakText(
+            "No form fields were detected."
+        );
+
+        return;
+    }
+
+    showCurrentField();
+
+};
+
+
+// ============================================================
+// SHOW CURRENT FIELD
+// ============================================================
+
+function showCurrentField() {
+
+    if (
+        currentIndex >=
+        formFields.length
+    ) {
+
+        document.getElementById(
+            "fieldBox"
+        ).style.display = "none";
+
+        document.getElementById(
+            "confirmationBox"
+        ).style.display = "none";
+
+        document.getElementById(
+            "completedSection"
+        ).style.display = "block";
+
+        setStatus(
+            "All fields completed."
+        );
+
+        speakText(
+            "All fields have been completed. You can review your answers or submit the original form."
+        );
+
+        return;
+    }
+
+
+    const field =
+        formFields[currentIndex];
+
+    const label =
+        getFieldLabel(field);
+
+    const type =
+        String(
+            field.type || "text"
+        ).toLowerCase();
+
+
+    document.getElementById(
+        "questionText"
+    ).textContent =
+        "Please provide your " +
+        label +
+        ".";
+
+
+    document.getElementById(
+        "fieldName"
+    ).textContent =
+        "Form field: " +
+        label;
+
+
+    const answerArea =
+        document.getElementById(
+            "answerArea"
+        );
+
+
+    answerArea.innerHTML = "";
+
+
+    // ========================================================
+    // RADIO OPTIONS
+    // ========================================================
+
+    if (
+        type === "radio"
+        &&
+        field.options
+        &&
+        field.options.length > 0
+    ) {
+
+        const optionsBox =
+            document.createElement(
+                "div"
+            );
+
+        optionsBox.className =
+            "options-box";
+
+
+        field.options.forEach(
+            function(option) {
+
+                const labelElement =
+                    document.createElement(
+                        "label"
+                    );
+
+                labelElement.className =
+                    "option-item";
+
+
+                const radio =
+                    document.createElement(
+                        "input"
+                    );
+
+                radio.type =
+                    "radio";
+
+                radio.name =
+                    "form_option";
+
+                radio.value =
+                    option;
+
+
+                labelElement.appendChild(
+                    radio
+                );
+
+                labelElement.appendChild(
+                    document.createTextNode(
+                        " " + option
+                    )
+                );
+
+
+                optionsBox.appendChild(
+                    labelElement
+                );
+
+            }
+        );
+
+
+        answerArea.appendChild(
+            optionsBox
+        );
+
+    }
+
+    // ========================================================
+    // CHECKBOX
+    // ========================================================
+
+    else if (
+        type === "checkbox"
+        &&
+        field.options
+        &&
+        field.options.length > 0
+    ) {
+
+        const optionsBox =
+            document.createElement(
+                "div"
+            );
+
+        optionsBox.className =
+            "options-box";
+
+
+        field.options.forEach(
+            function(option) {
+
+                const labelElement =
+                    document.createElement(
+                        "label"
+                    );
+
+                labelElement.className =
+                    "option-item";
+
+
+                const checkbox =
+                    document.createElement(
+                        "input"
+                    );
+
+                checkbox.type =
+                    "checkbox";
+
+                checkbox.name =
+                    "form_checkbox";
+
+                checkbox.value =
+                    option;
+
+
+                labelElement.appendChild(
+                    checkbox
+                );
+
+                labelElement.appendChild(
+                    document.createTextNode(
+                        " " + option
+                    )
+                );
+
+
+                optionsBox.appendChild(
+                    labelElement
+                );
+
+            }
+        );
+
+
+        answerArea.appendChild(
+            optionsBox
+        );
+
+    }
+
+    // ========================================================
+    // NORMAL INPUT
+    // ========================================================
+
+    else {
+
+        const input =
+            document.createElement(
+                "input"
+            );
+
+        input.type =
+            "text";
+
+        input.id =
+            "answerInput";
+
+        input.placeholder =
+            "Enter " +
+            label;
+
+
+        answerArea.appendChild(
+            input
+        );
+
+    }
+
+
+    clearError();
+
+
+    setStatus(
+        "Field " +
+        (currentIndex + 1) +
+        " of " +
+        formFields.length
+    );
+
+
+    const input =
+        document.getElementById(
+            "answerInput"
+        );
+
+
+    if (input) {
+
+        setTimeout(
+            function() {
+
+                input.focus();
+
+            },
+            100
+        );
+
+    }
+
+
+    speakText(
+        "Please provide your " +
+        label
+    );
+
+}
+
+
+// ============================================================
+// GET CURRENT ANSWER
+// ============================================================
+
+function getCurrentInputAnswer() {
+
+    const field =
+        formFields[currentIndex];
+
+    const type =
+        String(
+            field.type || "text"
+        ).toLowerCase();
+
+
+    if (type === "radio") {
+
+        const selected =
+            document.querySelector(
+                'input[name="form_option"]:checked'
+            );
+
+        return selected
+            ? selected.value
+            : "";
+
+    }
+
+
+    if (type === "checkbox") {
+
+        const selected =
+            Array.from(
+                document.querySelectorAll(
+                    'input[name="form_checkbox"]:checked'
+                )
+            );
+
+        return selected
+            .map(
+                function(item) {
+                    return item.value;
+                }
+            )
+            .join(", ");
+
+    }
+
+
+    const input =
+        document.getElementById(
+            "answerInput"
+        );
+
+
+    return input
+        ? input.value.trim()
+        : "";
+
+}
+
+
+// ============================================================
+// VALIDATE ANSWER
+// ============================================================
+
+function validateAnswer(
+    field,
+    answer
+) {
+
+    const label =
+        getFieldLabel(field);
+
+    const lowerLabel =
+        label.toLowerCase();
+
+
+    // ========================================================
+    // NAME
+    // ========================================================
+
+    const nameFields = [
+
+        "name",
+        "full name",
+        "first name",
+        "last name",
+        "surname"
+
+    ];
+
+
+    const isNameField =
+        nameFields.some(
+            function(name) {
+
+                return lowerLabel.includes(
+                    name
+                );
+
+            }
+        );
+
+
+    if (isNameField) {
+
+        if (
+            !/^[A-Za-z][A-Za-z .'-]*$/.test(
+                answer
+            )
+        ) {
+
+            return (
+                "❌ Invalid " +
+                label +
+                ". Please enter a valid name using letters."
+            );
+
+        }
+
+    }
+
+
+    // ========================================================
+    // EMAIL
+    // ========================================================
+
+    if (
+        lowerLabel.includes(
+            "email"
+        )
+        ||
+        field.type === "email"
+    ) {
+
+        if (
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+                answer
+            )
+        ) {
+
+            return (
+                "❌ Invalid email address. Please enter a valid email."
+            );
+
+        }
+
+    }
+
+
+    // ========================================================
+    // PHONE / CONTACT
+    // ========================================================
+
+    if (
+        lowerLabel.includes("phone")
+        ||
+        lowerLabel.includes("mobile")
+        ||
+        lowerLabel.includes("contact number")
+        ||
+        lowerLabel.includes("whatsapp")
+    ) {
+
+        const digits =
+            answer.replace(
+                /\D/g,
+                ""
+            );
+
+        if (
+            digits.length < 7
+            ||
+            digits.length > 15
+        ) {
+
+            return (
+                "❌ Invalid phone number. Please enter a valid phone number."
+            );
+
+        }
+
+    }
+
+
+    return "";
+
+}
+
+
+// ============================================================
+// SUBMIT TYPED ANSWER
+// ============================================================
+
+function submitTypedAnswer() {
+
+    stopListening();
+
+    const answer =
+        getCurrentInputAnswer();
+
+
+    if (!answer) {
+
+        showError(
+            "Please speak or type your answer."
+        );
+
+        speakText(
+            "Please provide an answer."
+        );
+
+        return;
+    }
+
+
+    const field =
+        formFields[currentIndex];
+
+
+    const validationError =
+        validateAnswer(
+            field,
+            answer
+        );
+
+
+    if (validationError) {
+
+        showError(
+            validationError
+        );
+
+        speakText(
+            validationError
+        );
+
+        return;
+    }
+
+
+    clearError();
+
+
+    showConfirmation(
+        answer
+    );
+
+}
+
+
+// ============================================================
+// SHOW CONFIRMATION
+// ============================================================
+
+function showConfirmation(answer) {
+
+    currentAnswer =
+        answer;
+
+
+    const field =
+        formFields[currentIndex];
+
+
+    const label =
+        getFieldLabel(field);
+
+
+    document.getElementById(
+        "confirmationText"
+    ).textContent =
+        label +
+        " = " +
+        answer;
+
+
+    document.getElementById(
+        "confirmationBox"
+    ).style.display =
+        "block";
+
+
+    setStatus(
+        "Please confirm your answer."
+    );
+
+
+    speakText(
+        "Your " +
+        label +
+        " is " +
+        answer +
+        ". Is that correct?"
+    );
+
+}
+
+
+// ============================================================
+// CONFIRM
+// ============================================================
+
+function confirmAnswer() {
+
+    const field =
+        formFields[currentIndex];
+
+
+    const fieldKey =
+        field.field_id ||
+        field.id ||
+        field.name ||
+        getFieldLabel(field);
+
+
+    answers[fieldKey] =
+        currentAnswer;
+
+
+    document.getElementById(
+        "confirmationBox"
+    ).style.display =
+        "none";
+
+
+    setStatus(
+        "Answer confirmed."
+    );
+
+
+    currentIndex++;
+
+
+    setTimeout(
+        function() {
+
+            showCurrentField();
+
+        },
+        500
+    );
+
+}
+
+
+// ============================================================
+// EDIT
+// ============================================================
+
+function editAnswer() {
+
+    document.getElementById(
+        "confirmationBox"
+    ).style.display =
+        "none";
+
+
+    const field =
+        formFields[currentIndex];
+
+
+    const type =
+        String(
+            field.type || "text"
+        ).toLowerCase();
+
+
+    if (
+        type !== "radio"
+        &&
+        type !== "checkbox"
+    ) {
+
+        const input =
+            document.getElementById(
+                "answerInput"
+            );
+
+        if (input) {
+
+            input.value =
+                currentAnswer;
+
+            input.focus();
+
+        }
+
+    }
+
+
+    setStatus(
+        "Please correct your answer."
+    );
+
+
+    speakText(
+        "Please correct your answer."
+    );
+
+}
+
+
+// ============================================================
+// REPEAT
+// ============================================================
+
+function repeatQuestion() {
+
+    const question =
+        document.getElementById(
+            "questionText"
+        ).textContent;
+
+
+    speakText(
+        question
+    );
+
+}
+
+
+// ============================================================
+// SPEECH RECOGNITION
+// ============================================================
+
+function setupSpeechRecognition() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+
+    if (!SpeechRecognition) {
+
+        return;
+
+    }
+
+
+    recognition =
+        new SpeechRecognition();
+
+
+    recognition.continuous =
+        false;
+
+    recognition.interimResults =
+        false;
+
+
+    recognition.lang =
+        languageCodes[
+            language
+        ] || "en-IN";
+
+
+    recognition.onstart =
+        function() {
+
+            isListening =
+                true;
+
+            setStatus(
+                "Listening..."
+            );
+
+        };
+
+
+    recognition.onresult =
+        function(event) {
+
+            const text =
+                event.results[0][0]
+                    .transcript;
+
+
+            const input =
+                document.getElementById(
+                    "answerInput"
+                );
+
+
+            if (input) {
+
+                input.value =
+                    text;
+
+            }
+
+
+            isListening =
+                false;
+
+
+            setStatus(
+                "Answer received."
+            );
+
+        };
+
+
+    recognition.onerror =
+        function(event) {
+
+            console.log(
+                "Speech recognition error:",
+                event.error
+            );
+
+
+            isListening =
+                false;
+
+            setStatus(
+                "Voice input error."
+            );
+
+        };
+
+
+    recognition.onend =
+        function() {
+
+            isListening =
+                false;
+
+        };
+
+}
+
+
+// ============================================================
+// START LISTENING
+// ============================================================
+
+function startListening() {
+
+    if (!recognition) {
+
+        setupSpeechRecognition();
+
+    }
+
+
+    if (!recognition) {
+
+        alert(
+            "Voice recognition is not supported in this browser."
+        );
+
+        return;
+    }
+
+
+    if (isListening) {
+
+        return;
+
+    }
+
+
+    recognition.lang =
+        languageCodes[
+            language
+        ] || "en-IN";
+
+
+    try {
+
+        recognition.start();
+
+    }
+    catch(error) {
+
+        console.log(
+            "Speech recognition already active."
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// STOP LISTENING
+// ============================================================
+
+function stopListening() {
+
+    if (
+        recognition &&
+        isListening
+    ) {
+
+        recognition.stop();
+
+        isListening =
+            false;
+
+    }
+
+
+    if (
+        "speechSynthesis" in window
+    ) {
+
+        window.speechSynthesis.cancel();
+
+    }
+
+}
+
+
+// ============================================================
+// TEXT TO SPEECH
+// ============================================================
+
+function speakText(text) {
+
+    if (
+        !("speechSynthesis" in window)
+    ) {
+
+        return;
+
+    }
+
+
+    window.speechSynthesis.cancel();
+
+
+    const speech =
+        new SpeechSynthesisUtterance(
+            text
+        );
+
+
+    speech.lang =
+        languageCodes[
+            language
+        ] || "en-IN";
+
+
+    speech.rate =
+        0.9;
+
+
+    window.speechSynthesis.speak(
+        speech
+    );
+
+}
+
+
+// ============================================================
+// REVIEW ANSWERS
+// ============================================================
+
+function reviewAnswers() {
+
+    const reviewBox =
+        document.getElementById(
+            "reviewBox"
+        );
+
+
+    const reviewContent =
+        document.getElementById(
+            "reviewContent"
+        );
+
+
+    reviewContent.innerHTML =
+        "";
+
+
+    formFields.forEach(
+        function(field) {
+
+            const fieldKey =
+                field.field_id ||
+                field.id ||
+                field.name ||
+                getFieldLabel(field);
+
+
+            const label =
+                getFieldLabel(field);
+
+
+            const answer =
+                answers[fieldKey] ||
+                "";
+
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+
+            item.className =
+                "review-item";
+
+
+            const strong =
+                document.createElement(
+                    "strong"
+                );
+
+            strong.textContent =
+                label + ": ";
+
+
+            item.appendChild(
+                strong
+            );
+
+
+            item.appendChild(
+                document.createTextNode(
+                    answer
+                )
+            );
+
+
+            reviewContent.appendChild(
+                item
+            );
+
+        }
+    );
+
+
+    reviewBox.style.display =
+        "block";
+
+}
+
+
+// ============================================================
+// SUBMIT ORIGINAL FORM
+// ============================================================
+
+async function submitOriginalForm() {
+
+    const button =
+        document.getElementById(
+            "submitOriginalButton"
+        );
+
+
+    if (!button) {
+
+        alert(
+            "Submit button not found."
+        );
+
+        return;
+    }
+
+
+    button.disabled =
+        true;
+
+
+    button.textContent =
+        "⏳ Submitting...";
+
+
+    setStatus(
+        "Opening original form and submitting..."
+    );
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/submit-original-form",
+                {
+
+                    method:
+                        "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            form_url:
+                                originalFormUrl,
+
+                            answers:
+                                answers,
+
+                            fields:
+                                formFields
+
+                        })
+
+                }
+            );
+
+
+        let result;
+
+
+        try {
+
+            result =
+                await response.json();
+
+        }
+        catch(error) {
+
+            throw new Error(
+                "The server returned an invalid response."
+            );
+
+        }
+
+
+        console.log(
+            "SUBMISSION RESULT:",
+            result
+        );
+
+
+        if (
+            response.ok
+            &&
+            result.success
+        ) {
+
+            setStatus(
+                "✅ Original form submitted successfully."
+            );
+
+
+            button.textContent =
+                "✅ Form Submitted";
+
+
+            alert(
+                "✅ Original form submitted successfully!"
+            );
+
+
+            return;
+        }
+
+
+        const errorMessage =
+            result.message ||
+            result.error ||
+            "The original form could not be submitted.";
+
+
+        setStatus(
+            "❌ Original form could not be submitted."
+        );
+
+
+        alert(
+            "❌ Form could not be submitted.\n\n" +
+            errorMessage
+        );
+
+
+        button.disabled =
+            false;
+
+
+        button.textContent =
+            "🚀 Submit Original Form";
+
+    }
+    catch(error) {
+
+        console.error(
+            "SUBMISSION ERROR:",
+            error
+        );
+
+
+        setStatus(
+            "❌ Unable to submit the original form."
+        );
+
+
+        alert(
+            "❌ Unable to submit the original form.\n\n" +
+            error.message
+        );
+
+
+        button.disabled =
+            false;
+
+
+        button.textContent =
+            "🚀 Submit Original Form";
+
+    }
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>

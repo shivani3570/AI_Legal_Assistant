@@ -1,0 +1,3483 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AI Smart Form Assistant</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        body {
+
+            font-family: "Segoe UI", Arial, sans-serif;
+
+            min-height: 100vh;
+
+            background:
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(99,102,241,0.20),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 90% 20%,
+                    rgba(14,165,233,0.18),
+                    transparent 30%
+                ),
+                linear-gradient(
+                    135deg,
+                    #f8fafc,
+                    #eef2ff
+                );
+
+            color: #172033;
+
+        }
+
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .header {
+
+            text-align: center;
+
+            padding: 40px 20px 25px;
+
+        }
+
+
+        .logo {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            color: #4f46e5;
+
+            font-size: 17px;
+
+            font-weight: 800;
+
+            margin-bottom: 18px;
+
+        }
+
+
+        .logo-icon {
+
+            width: 42px;
+
+            height: 42px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 14px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #4f46e5,
+                    #7c3aed
+                );
+
+            color: white;
+
+            font-size: 22px;
+
+            box-shadow:
+                0 10px 25px
+                rgba(79,70,229,0.25);
+
+        }
+
+
+        h1 {
+
+            font-size: 40px;
+
+            font-weight: 800;
+
+            letter-spacing: -1px;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .subtitle {
+
+            color: #64748b;
+
+            font-size: 16px;
+
+        }
+
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .container {
+
+            width: min(1000px, 92%);
+
+            margin: 15px auto 60px;
+
+        }
+
+
+        /* =========================
+           LINK CARD
+        ========================= */
+
+        .link-card {
+
+            background: rgba(255,255,255,0.95);
+
+            border: 1px solid #e2e8f0;
+
+            border-radius: 22px;
+
+            padding: 28px;
+
+            margin-bottom: 25px;
+
+            box-shadow:
+                0 15px 45px
+                rgba(15,23,42,0.08);
+
+        }
+
+
+        .link-title {
+
+            font-size: 22px;
+
+            font-weight: 800;
+
+            margin-bottom: 8px;
+
+            color: #172033;
+
+        }
+
+
+        .link-description {
+
+            color: #64748b;
+
+            font-size: 14px;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .link-row {
+
+            display: flex;
+
+            gap: 12px;
+
+        }
+
+
+        .link-input {
+
+            flex: 1;
+
+            padding: 14px 16px;
+
+            border: 1px solid #cbd5e1;
+
+            border-radius: 13px;
+
+            font-size: 15px;
+
+            outline: none;
+
+        }
+
+
+        .link-input:focus {
+
+            border-color: #6366f1;
+
+            box-shadow:
+                0 0 0 4px
+                rgba(99,102,241,0.10);
+
+        }
+
+
+        .load-button {
+
+            border: none;
+
+            padding: 14px 22px;
+
+            border-radius: 13px;
+
+            background: #4f46e5;
+
+            color: white;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+
+        }
+
+
+        .load-button:hover {
+
+            transform: translateY(-2px);
+
+        }
+
+
+        .load-button:disabled {
+
+            opacity: 0.6;
+
+            cursor: not-allowed;
+
+            transform: none;
+
+        }
+
+
+        .link-status {
+
+            margin-top: 12px;
+
+            font-size: 13px;
+
+            color: #64748b;
+
+        }
+
+
+        .link-status.error {
+
+            color: #dc2626;
+
+        }
+
+
+        .link-status.success {
+
+            color: #059669;
+
+        }
+
+
+        /* =========================
+           ASSISTANT CARD
+        ========================= */
+
+        .assistant-card {
+
+            position: relative;
+
+            overflow: hidden;
+
+            background: rgba(255,255,255,0.90);
+
+            border: 1px solid rgba(255,255,255,0.9);
+
+            border-radius: 25px;
+
+            padding: 32px;
+
+            box-shadow:
+                0 20px 60px
+                rgba(15,23,42,0.10);
+
+        }
+
+
+        .assistant-card::before {
+
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+
+            left: 0;
+
+            width: 100%;
+
+            height: 5px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #4f46e5,
+                    #7c3aed,
+                    #06b6d4
+                );
+
+        }
+
+
+        .assistant-header {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 16px;
+
+            margin-bottom: 25px;
+
+        }
+
+
+        .assistant-icon {
+
+            width: 58px;
+
+            height: 58px;
+
+            border-radius: 18px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 29px;
+
+            background: #eef2ff;
+
+        }
+
+
+        .assistant-title {
+
+            font-size: 24px;
+
+            font-weight: 800;
+
+        }
+
+
+        .assistant-description {
+
+            margin-top: 5px;
+
+            color: #64748b;
+
+            font-size: 14px;
+
+        }
+
+
+        /* =========================
+           AI STATUS
+        ========================= */
+
+        .ai-status {
+
+            padding: 18px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #f5f3ff,
+                    #eef2ff
+                );
+
+            border: 1px solid #ddd6fe;
+
+            border-radius: 17px;
+
+            margin-bottom: 25px;
+
+            text-align: center;
+
+        }
+
+
+        .status-title {
+
+            font-size: 14px;
+
+            color: #64748b;
+
+            margin-bottom: 7px;
+
+        }
+
+
+        .question {
+
+            font-size: 20px;
+
+            font-weight: 750;
+
+            color: #312e81;
+
+            min-height: 30px;
+
+        }
+
+
+        .progress {
+
+            margin-top: 12px;
+
+            color: #64748b;
+
+            font-size: 13px;
+
+        }
+
+
+        /* =========================
+           VOICE
+        ========================= */
+
+        .voice-area {
+
+            text-align: center;
+
+            padding: 25px;
+
+            background: #f8fafc;
+
+            border: 1px solid #e2e8f0;
+
+            border-radius: 20px;
+
+            margin-bottom: 28px;
+
+        }
+
+
+        .mic {
+
+            width: 82px;
+
+            height: 82px;
+
+            border-radius: 50%;
+
+            border: none;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #4f46e5,
+                    #7c3aed
+                );
+
+            color: white;
+
+            font-size: 32px;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 12px 30px
+                rgba(79,70,229,0.30);
+
+            transition: 0.25s;
+
+        }
+
+
+        .mic:hover {
+
+            transform: scale(1.06);
+
+        }
+
+
+        .mic.listening {
+
+            animation: pulse 1.2s infinite;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #ef4444,
+                    #dc2626
+                );
+
+        }
+
+
+        @keyframes pulse {
+
+            0% {
+
+                box-shadow:
+                    0 0 0 0
+                    rgba(239,68,68,0.45);
+
+            }
+
+            70% {
+
+                box-shadow:
+                    0 0 0 25px
+                    rgba(239,68,68,0);
+
+            }
+
+            100% {
+
+                box-shadow:
+                    0 0 0 0
+                    rgba(239,68,68,0);
+
+            }
+
+        }
+
+
+        .voice-text {
+
+            margin-top: 15px;
+
+            color: #475569;
+
+            font-size: 14px;
+
+            min-height: 22px;
+
+        }
+
+
+        .heard-text {
+
+            margin-top: 10px;
+
+            color: #4f46e5;
+
+            font-weight: 700;
+
+            min-height: 22px;
+
+        }
+
+
+        /* =========================
+           FORM
+        ========================= */
+
+        .form-section {
+
+            margin-top: 20px;
+
+        }
+
+
+        .section-title {
+
+            font-size: 20px;
+
+            font-weight: 800;
+
+            margin-bottom: 18px;
+
+        }
+
+
+        .field {
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .field label {
+
+            display: block;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            color: #334155;
+
+            margin-bottom: 8px;
+
+        }
+
+
+        .field input,
+
+        .field textarea,
+
+        .field select {
+
+            width: 100%;
+
+            border: 1px solid #cbd5e1;
+
+            border-radius: 13px;
+
+            padding: 14px 15px;
+
+            font-size: 15px;
+
+            outline: none;
+
+            background: white;
+
+            transition: 0.2s;
+
+        }
+
+
+        .field textarea {
+
+            min-height: 110px;
+
+            resize: vertical;
+
+        }
+
+
+        .field input:focus,
+
+        .field textarea:focus,
+
+        .field select:focus {
+
+            border-color: #6366f1;
+
+            box-shadow:
+                0 0 0 4px
+                rgba(99,102,241,0.10);
+
+        }
+
+
+        .field.active label {
+
+            color: #4f46e5;
+
+        }
+
+
+        .field.valid input,
+
+        .field.valid textarea,
+
+        .field.valid select {
+
+            border-color: #10b981;
+
+            background: #f0fdf4;
+
+        }
+
+
+        .field.invalid input,
+
+        .field.invalid textarea,
+
+        .field.invalid select {
+
+            border-color: #ef4444;
+
+            background: #fef2f2;
+
+        }
+
+
+        .field-message {
+
+            margin-top: 6px;
+
+            font-size: 13px;
+
+        }
+
+
+        .field-message.error {
+
+            color: #dc2626;
+
+        }
+
+
+        .field-message.success {
+
+            color: #059669;
+
+        }
+
+
+        /* =========================
+           BUTTONS
+        ========================= */
+
+        .buttons {
+
+            display: flex;
+
+            gap: 12px;
+
+            flex-wrap: wrap;
+
+            margin-top: 25px;
+
+        }
+
+
+        button.action {
+
+            border: none;
+
+            padding: 13px 22px;
+
+            border-radius: 12px;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+
+        }
+
+
+        button.action:hover {
+
+            transform: translateY(-2px);
+
+        }
+
+
+        .start {
+
+            background: #4f46e5;
+
+            color: white;
+
+            box-shadow:
+                0 8px 20px
+                rgba(79,70,229,0.22);
+
+        }
+
+
+        .next {
+
+            background: #10b981;
+
+            color: white;
+
+        }
+
+
+        .clear {
+
+            background: #f1f5f9;
+
+            color: #334155;
+
+        }
+
+
+        .submit {
+
+            background: #0f172a;
+
+            color: white;
+
+        }
+
+
+        /* =========================
+           MESSAGE
+        ========================= */
+
+        .message {
+
+            margin-top: 20px;
+
+            padding: 15px;
+
+            border-radius: 13px;
+
+            text-align: center;
+
+            display: none;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+        }
+
+
+        .message.success {
+
+            display: block;
+
+            background: #ecfdf5;
+
+            color: #047857;
+
+            border: 1px solid #a7f3d0;
+
+        }
+
+
+        .message.error {
+
+            display: block;
+
+            background: #fef2f2;
+
+            color: #b91c1c;
+
+            border: 1px solid #fecaca;
+
+        }
+
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        .footer {
+
+            text-align: center;
+
+            color: #94a3b8;
+
+            font-size: 13px;
+
+            padding-bottom: 35px;
+
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 700px) {
+
+            h1 {
+
+                font-size: 30px;
+
+            }
+
+
+            .assistant-card {
+
+                padding: 20px;
+
+            }
+
+
+            .assistant-title {
+
+                font-size: 20px;
+
+            }
+
+
+            .buttons {
+
+                flex-direction: column;
+
+            }
+
+
+            button.action {
+
+                width: 100%;
+
+            }
+
+
+            .link-row {
+
+                flex-direction: column;
+
+            }
+
+
+            .load-button {
+
+                width: 100%;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header class="header">
+
+    <div class="logo">
+
+        <div class="logo-icon">
+            ⚖️
+        </div>
+
+        AI Legal Assistant
+
+    </div>
+
+
+    <h1>
+        Smart Form Filling Assistant
+    </h1>
+
+
+    <p class="subtitle">
+        Upload a form link and let your AI voice assistant guide you
+    </p>
+
+</header>
+
+
+
+<main class="container">
+
+
+    <!-- =========================
+         FORM LINK
+    ========================= -->
+
+    <section class="link-card">
+
+        <div class="link-title">
+            🔗 Upload Form Link
+        </div>
+
+
+        <div class="link-description">
+
+            Enter the link of the form you want to fill.
+            The assistant will extract the fields from that form
+            and create the questions automatically.
+
+        </div>
+
+
+        <div class="link-row">
+
+            <input
+                type="url"
+                id="formLink"
+                class="link-input"
+                placeholder="Paste your form link here"
+                autocomplete="off"
+            >
+
+
+            <button
+                type="button"
+                class="load-button"
+                id="loadFormButton"
+                onclick="loadForm()">
+
+                📄 Load Form
+
+            </button>
+
+        </div>
+
+
+        <div
+            id="linkStatus"
+            class="link-status">
+
+            Waiting for a form link...
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================
+         AI ASSISTANT
+    ========================= -->
+
+    <section
+        class="assistant-card"
+        id="assistantCard"
+        style="display:none;">
+
+
+        <div class="assistant-header">
+
+            <div class="assistant-icon">
+                🤖
+            </div>
+
+
+            <div>
+
+                <div class="assistant-title">
+                    Voice AI Form Assistant
+                </div>
+
+
+                <div class="assistant-description">
+
+                    Answer naturally. The assistant will understand,
+                    validate and fill the information extracted
+                    from your uploaded form.
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =========================
+             AI QUESTION
+        ========================= -->
+
+        <div class="ai-status">
+
+            <div class="status-title">
+                AI QUESTION
+            </div>
+
+
+            <div
+                class="question"
+                id="question">
+
+                Load a form to begin.
+
+            </div>
+
+
+            <div
+                class="progress"
+                id="progress">
+
+                Ready
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =========================
+             VOICE
+        ========================= -->
+
+        <div class="voice-area">
+
+            <button
+                type="button"
+                class="mic"
+                id="micButton"
+                onclick="startListening()">
+
+                🎙️
+
+            </button>
+
+
+            <div
+                class="voice-text"
+                id="voiceStatus">
+
+                Press the microphone and speak your answer.
+
+            </div>
+
+
+            <div
+                class="heard-text"
+                id="heardText">
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =========================
+             DYNAMIC FORM
+        ========================= -->
+
+        <form
+            method="POST"
+            action="/smart-form"
+            id="smartForm">
+
+
+            <input
+                type="hidden"
+                name="language"
+                value="{{ language }}">
+
+
+            <input
+                type="hidden"
+                name="source_url"
+                id="sourceUrl">
+
+
+            <div class="form-section">
+
+
+                <div class="section-title">
+                    📋 Extracted Form Information
+                </div>
+
+
+                <div id="dynamicFields">
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- =========================
+                 BUTTONS
+            ========================= -->
+
+            <div class="buttons">
+
+
+                <button
+                    type="button"
+                    class="action start"
+                    onclick="startAssistant()">
+
+                    🎙️ Start Voice Assistant
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="action next"
+                    onclick="askCurrentQuestion()">
+
+                    ▶ Ask Question
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="action clear"
+                    onclick="clearCurrentAnswer()">
+
+                    ↻ Clear Current Answer
+
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="action submit">
+
+                    ✓ Submit Form
+
+                </button>
+
+
+            </div>
+
+
+        </form>
+
+
+
+        <div
+            id="mainMessage"
+            class="message">
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
+
+<footer class="footer">
+
+    AI Legal Assistant • Voice Powered Smart Form Filling
+
+</footer>
+
+
+
+<script>
+
+
+/* ======================================================
+   GLOBAL VARIABLES
+   ====================================================== */
+
+let recognition = null;
+
+let currentFieldIndex = 0;
+
+let listening = false;
+
+let answers = {};
+
+let started = false;
+
+let extractedFields = [];
+
+let validationPassed = {};
+
+
+
+/* ======================================================
+   LANGUAGE
+   ====================================================== */
+
+function getLanguageCode() {
+
+    const language =
+        "{{ language }}".toLowerCase();
+
+    const codes = {
+
+        english: "en-IN",
+
+        hindi: "hi-IN",
+
+        kannada: "kn-IN",
+
+        tamil: "ta-IN",
+
+        telugu: "te-IN",
+
+        malayalam: "ml-IN"
+
+    };
+
+    return codes[language] || "en-IN";
+
+}
+
+
+
+/* ======================================================
+   LOAD FORM
+   ====================================================== */
+
+async function loadForm() {
+
+    const link =
+        document
+            .getElementById("formLink")
+            .value
+            .trim();
+
+
+    const status =
+        document
+            .getElementById("linkStatus");
+
+
+    const button =
+        document
+            .getElementById("loadFormButton");
+
+
+    if (!link) {
+
+        status.textContent =
+            "Please enter a form link.";
+
+        status.className =
+            "link-status error";
+
+        return;
+
+    }
+
+
+    try {
+
+        new URL(link);
+
+    }
+
+    catch(error) {
+
+        status.textContent =
+            "Please enter a valid form URL.";
+
+        status.className =
+            "link-status error";
+
+        return;
+
+    }
+
+
+    button.disabled = true;
+
+    button.textContent =
+        "⏳ Loading...";
+
+
+    status.textContent =
+        "Reading the form and extracting its fields...";
+
+    status.className =
+        "link-status";
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/extract-form",
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            url: link
+
+                        })
+
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to extract form."
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !data.fields ||
+            !Array.isArray(data.fields) ||
+            data.fields.length === 0
+        ) {
+
+            throw new Error(
+                "No form fields were found."
+            );
+
+        }
+
+
+        extractedFields =
+            data.fields;
+
+
+        validationPassed = {};
+
+        answers = {};
+
+        currentFieldIndex = 0;
+
+        started = false;
+
+
+        document
+            .getElementById("sourceUrl")
+            .value = link;
+
+
+        renderDynamicForm(
+            extractedFields
+        );
+
+
+        document
+            .getElementById("assistantCard")
+            .style.display = "block";
+
+
+        status.textContent =
+            "✓ Form loaded successfully. " +
+            extractedFields.length +
+            " fields extracted.";
+
+        status.className =
+            "link-status success";
+
+
+        document
+            .getElementById("question")
+            .textContent =
+            "Press \"Start Voice Assistant\" to begin.";
+
+
+        document
+            .getElementById("progress")
+            .textContent =
+            extractedFields.length +
+            " questions ready";
+
+
+    }
+
+    catch(error) {
+
+        console.error(error);
+
+
+        status.textContent =
+            "✕ " +
+            error.message;
+
+        status.className =
+            "link-status error";
+
+
+        document
+            .getElementById("assistantCard")
+            .style.display = "none";
+
+    }
+
+
+    button.disabled = false;
+
+    button.textContent =
+        "📄 Load Form";
+
+}
+
+
+
+/* ======================================================
+   RENDER DYNAMIC FORM
+   ====================================================== */
+
+function renderDynamicForm(fields) {
+
+    const container =
+        document
+            .getElementById("dynamicFields");
+
+
+    container.innerHTML = "";
+
+
+    fields.forEach(
+        function(field, index) {
+
+            const fieldId =
+                "dynamic-field-" + index;
+
+
+            const messageId =
+                "message-" + index;
+
+
+            const wrapper =
+                document.createElement("div");
+
+
+            wrapper.className =
+                "field";
+
+
+            wrapper.id =
+                "field-" + index;
+
+
+            const label =
+                document.createElement("label");
+
+
+            label.htmlFor =
+                fieldId;
+
+
+            label.textContent =
+                field.label ||
+                field.name ||
+                "Field " + (index + 1);
+
+
+            wrapper.appendChild(label);
+
+
+            let input;
+
+
+            const type =
+                (
+                    field.type ||
+                    "text"
+                ).toLowerCase();
+
+
+            /* TEXTAREA */
+
+            if (
+                type === "textarea" ||
+                type === "longtext"
+            ) {
+
+                input =
+                    document.createElement(
+                        "textarea"
+                    );
+
+            }
+
+
+            /* SELECT */
+
+            else if (
+                type === "select" ||
+                type === "dropdown"
+            ) {
+
+                input =
+                    document.createElement(
+                        "select"
+                    );
+
+
+                const defaultOption =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                defaultOption.value = "";
+
+                defaultOption.textContent =
+                    "Select an option";
+
+
+                input.appendChild(
+                    defaultOption
+                );
+
+
+                if (
+                    Array.isArray(
+                        field.options
+                    )
+                ) {
+
+                    field.options.forEach(
+                        function(option) {
+
+                            const optionElement =
+                                document.createElement(
+                                    "option"
+                                );
+
+
+                            if (
+                                typeof option ===
+                                "object"
+                            ) {
+
+                                optionElement.value =
+                                    option.value ??
+                                    option.label;
+
+                                optionElement.textContent =
+                                    option.label ??
+                                    option.value;
+
+                            }
+
+                            else {
+
+                                optionElement.value =
+                                    option;
+
+                                optionElement.textContent =
+                                    option;
+
+                            }
+
+
+                            input.appendChild(
+                                optionElement
+                            );
+
+                        }
+                    );
+
+                }
+
+            }
+
+
+            /* DEFAULT INPUT */
+
+            else {
+
+                input =
+                    document.createElement(
+                        "input"
+                    );
+
+
+                const allowedTypes = [
+
+                    "text",
+                    "email",
+                    "number",
+                    "date",
+                    "tel",
+                    "url",
+                    "time"
+
+                ];
+
+
+                input.type =
+                    allowedTypes.includes(type)
+                    ? type
+                    : "text";
+
+            }
+
+
+            input.id =
+                fieldId;
+
+
+            input.name =
+                field.name ||
+                "field_" + index;
+
+
+            if (field.placeholder) {
+
+                input.placeholder =
+                    field.placeholder;
+
+            }
+
+
+            if (field.required) {
+
+                input.required = true;
+
+            }
+
+
+            /*
+             If user manually types into the field,
+             validate it when leaving the field.
+            */
+
+            input.addEventListener(
+                "blur",
+                function() {
+
+                    if (!input.value.trim()) {
+
+                        return;
+
+                    }
+
+
+                    const result =
+                        validateExtractedField(
+                            field,
+                            input.value.trim()
+                        );
+
+
+                    if (result.valid) {
+
+                        input.value =
+                            result.value;
+
+                        validationPassed[index] =
+                            true;
+
+                        markValid(
+                            index,
+                            "✓ Answer accepted"
+                        );
+
+                    }
+
+                    else {
+
+                        validationPassed[index] =
+                            false;
+
+                        markInvalid(
+                            index,
+                            result.message
+                        );
+
+                    }
+
+                }
+            );
+
+
+            wrapper.appendChild(input);
+
+
+            const message =
+                document.createElement("div");
+
+
+            message.className =
+                "field-message";
+
+
+            message.id =
+                messageId;
+
+
+            wrapper.appendChild(
+                message
+            );
+
+
+            container.appendChild(
+                wrapper
+            );
+
+        }
+    );
+
+}
+
+
+
+/* ======================================================
+   SPEECH SYNTHESIS
+   ====================================================== */
+
+function speak(text) {
+
+    if (
+        !("speechSynthesis" in window)
+    ) {
+
+        return;
+
+    }
+
+
+    window.speechSynthesis.cancel();
+
+
+    const utterance =
+        new SpeechSynthesisUtterance(
+            text
+        );
+
+
+    utterance.lang =
+        getLanguageCode();
+
+
+    utterance.rate = 0.88;
+
+    utterance.pitch = 1;
+
+
+    window.speechSynthesis.speak(
+        utterance
+    );
+
+}
+
+
+
+/* ======================================================
+   SPEECH RECOGNITION
+   ====================================================== */
+
+function createRecognition() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+
+    if (!SpeechRecognition) {
+
+        showMessage(
+            "Voice recognition is not supported in this browser. Please use Google Chrome.",
+            "error"
+        );
+
+        return null;
+
+    }
+
+
+    const r =
+        new SpeechRecognition();
+
+
+    r.continuous = false;
+
+    r.interimResults = false;
+
+    r.maxAlternatives = 3;
+
+    r.lang =
+        getLanguageCode();
+
+
+    r.onstart = function() {
+
+        listening = true;
+
+
+        document
+            .getElementById("micButton")
+            .classList.add(
+                "listening"
+            );
+
+
+        document
+            .getElementById("voiceStatus")
+            .textContent =
+            "🔴 Listening... Speak now.";
+
+    };
+
+
+    r.onend = function() {
+
+        listening = false;
+
+
+        document
+            .getElementById("micButton")
+            .classList.remove(
+                "listening"
+            );
+
+    };
+
+
+    r.onerror = function(event) {
+
+        listening = false;
+
+
+        document
+            .getElementById("micButton")
+            .classList.remove(
+                "listening"
+            );
+
+
+        document
+            .getElementById("voiceStatus")
+            .textContent =
+            "Voice recognition stopped.";
+
+
+        if (
+            event.error === "not-allowed"
+        ) {
+
+            speak(
+                "Microphone permission is required."
+            );
+
+        }
+
+    };
+
+
+    r.onresult = function(event) {
+
+        const transcript =
+            event
+                .results[0][0]
+                .transcript
+                .trim();
+
+
+        document
+            .getElementById("heardText")
+            .textContent =
+            "You said: " +
+            transcript;
+
+
+        processAnswer(
+            transcript
+        );
+
+    };
+
+
+    return r;
+
+}
+
+
+
+/* ======================================================
+   START LISTENING
+   ====================================================== */
+
+function startListening() {
+
+    if (listening) {
+
+        return;
+
+    }
+
+
+    if (
+        !extractedFields.length
+    ) {
+
+        speak(
+            "Please load a form first."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        currentFieldIndex >=
+        extractedFields.length
+    ) {
+
+        return;
+
+    }
+
+
+    if (!recognition) {
+
+        recognition =
+            createRecognition();
+
+    }
+
+
+    if (!recognition) {
+
+        return;
+
+    }
+
+
+    try {
+
+        recognition.start();
+
+    }
+
+    catch(error) {
+
+        console.log(error);
+
+    }
+
+}
+
+
+
+/* ======================================================
+   START ASSISTANT
+   ====================================================== */
+
+function startAssistant() {
+
+    if (
+        !extractedFields.length
+    ) {
+
+        showMessage(
+            "Please load a form link first.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    started = true;
+
+    currentFieldIndex = 0;
+
+    answers = {};
+
+    validationPassed = {};
+
+
+    clearHighlights();
+
+
+    document
+        .getElementById("progress")
+        .textContent =
+        "Question 1 of " +
+        extractedFields.length;
+
+
+    askCurrentQuestion();
+
+}
+
+
+
+/* ======================================================
+   GENERATE QUESTION
+   ====================================================== */
+
+function getQuestionForField(field) {
+
+    const label =
+        field.label ||
+        field.name ||
+        "this field";
+
+
+    const trimmed =
+        label.trim();
+
+
+    if (
+        trimmed.endsWith("?")
+    ) {
+
+        return trimmed;
+
+    }
+
+
+    return "Please provide your " +
+           trimmed + ".";
+
+}
+
+
+
+/* ======================================================
+   ASK CURRENT QUESTION
+   ====================================================== */
+
+function askCurrentQuestion() {
+
+    if (
+        !extractedFields.length
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        currentFieldIndex >=
+        extractedFields.length
+    ) {
+
+        finishAssistant();
+
+        return;
+
+    }
+
+
+    started = true;
+
+
+    clearHighlights();
+
+
+    const field =
+        extractedFields[
+            currentFieldIndex
+        ];
+
+
+    const question =
+        getQuestionForField(
+            field
+        );
+
+
+    const wrapper =
+        document.getElementById(
+            "field-" +
+            currentFieldIndex
+        );
+
+
+    if (wrapper) {
+
+        wrapper.classList.add(
+            "active"
+        );
+
+    }
+
+
+    document
+        .getElementById("question")
+        .textContent =
+        question;
+
+
+    document
+        .getElementById("progress")
+        .textContent =
+        "Question " +
+        (currentFieldIndex + 1) +
+        " of " +
+        extractedFields.length;
+
+
+    speak(question);
+
+
+    setTimeout(
+        function() {
+
+            if (
+                currentFieldIndex <
+                extractedFields.length
+            ) {
+
+                startListening();
+
+            }
+
+        },
+        1500
+    );
+
+}
+
+
+
+/* ======================================================
+   PROCESS ANSWER
+   ====================================================== */
+
+function processAnswer(answer) {
+
+    if (
+        currentFieldIndex >=
+        extractedFields.length
+    ) {
+
+        return;
+
+    }
+
+
+    const field =
+        extractedFields[
+            currentFieldIndex
+        ];
+
+
+    const cleaned =
+        answer.trim();
+
+
+    if (!cleaned) {
+
+        speak(
+            "I did not hear an answer. Please try again."
+        );
+
+        return;
+
+    }
+
+
+    /*
+     IMPORTANT:
+
+     VALIDATION HAPPENS BEFORE ACCEPTANCE.
+    */
+
+    const validation =
+        validateExtractedField(
+            field,
+            cleaned
+        );
+
+
+    /*
+     =====================================================
+     INVALID ANSWER
+     =====================================================
+    */
+
+    if (!validation.valid) {
+
+        validationPassed[
+            currentFieldIndex
+        ] = false;
+
+
+        markInvalid(
+            currentFieldIndex,
+            validation.message
+        );
+
+
+        document
+            .getElementById("voiceStatus")
+            .textContent =
+            "✕ Invalid answer. Please try again.";
+
+
+        /*
+         AI VOICE TELLS USER WHY IT IS INVALID.
+        */
+
+        speak(
+            validation.voice
+        );
+
+
+        const input =
+            document.getElementById(
+                "dynamic-field-" +
+                currentFieldIndex
+            );
+
+
+        if (input) {
+
+            input.value = "";
+
+            input.focus();
+
+        }
+
+
+        /*
+         DO NOT MOVE TO NEXT FIELD.
+
+         Ask the SAME question again
+         after the AI finishes speaking.
+        */
+
+        setTimeout(
+            function() {
+
+                askCurrentQuestion();
+
+            },
+            2500
+        );
+
+
+        return;
+
+    }
+
+
+    /*
+     =====================================================
+     VALID ANSWER
+     =====================================================
+    */
+
+    validationPassed[
+        currentFieldIndex
+    ] = true;
+
+
+    const answerKey =
+        field.name ||
+        "field_" +
+        currentFieldIndex;
+
+
+    answers[answerKey] =
+        validation.value;
+
+
+    const input =
+        document.getElementById(
+            "dynamic-field-" +
+            currentFieldIndex
+        );
+
+
+    if (input) {
+
+        input.value =
+            validation.value;
+
+    }
+
+
+    markValid(
+        currentFieldIndex,
+        "✓ Answer accepted"
+    );
+
+
+    document
+        .getElementById("voiceStatus")
+        .textContent =
+        "✓ Answer understood and filled.";
+
+
+    /*
+     Only VALID answers receive
+     acceptance confirmation.
+    */
+
+    speak(
+        "Your answer is accepted."
+    );
+
+
+    /*
+     Move to next question ONLY
+     after valid answer.
+    */
+
+    setTimeout(
+        function() {
+
+            currentFieldIndex++;
+
+
+            if (
+                currentFieldIndex <
+                extractedFields.length
+            ) {
+
+                askCurrentQuestion();
+
+            }
+
+            else {
+
+                finishAssistant();
+
+            }
+
+        },
+        1500
+    );
+
+}
+
+
+
+/* ======================================================
+   VALIDATE DYNAMIC FIELD
+   ====================================================== */
+
+function validateExtractedField(field, answer) {
+
+    const value =
+        answer.trim();
+
+
+    /*
+     =====================================================
+     GET ACTUAL FIELD LABEL
+     =====================================================
+    */
+
+    const label =
+        (
+            field.label ||
+            field.name ||
+            ""
+        ).trim();
+
+
+    const fieldName =
+        (
+            field.name ||
+            ""
+        ).trim();
+
+
+    const combinedText =
+        (
+            label +
+            " " +
+            fieldName
+        ).toLowerCase();
+
+
+    /*
+     =====================================================
+     REQUIRED
+     =====================================================
+    */
+
+    if (
+        field.required &&
+        value.length === 0
+    ) {
+
+        return {
+
+            valid: false,
+
+            message:
+                "This field is required.",
+
+            voice:
+                "This field is required. Please provide an answer."
+
+        };
+
+    }
+
+
+    /*
+     =====================================================
+     NAME VALIDATION
+     =====================================================
+    */
+
+    const nameKeywords = [
+
+        "name",
+        "full name",
+        "first name",
+        "last name",
+        "middle name",
+        "father name",
+        "father's name",
+        "fathers name",
+        "mother name",
+        "mother's name",
+        "mothers name",
+        "applicant name",
+        "student name",
+        "guardian name",
+        "surname",
+        "given name"
+
+    ];
+
+
+    const isNameField =
+        nameKeywords.some(
+            function(keyword) {
+
+                return combinedText
+                    .includes(keyword);
+
+            }
+        );
+
+
+    if (isNameField) {
+
+        /*
+         Valid:
+
+         Shivani
+         Shivani K S
+         John Doe
+         Mary-Anne Smith
+
+         Invalid:
+
+         234
+         4678
+         John123
+         @#$%
+        */
+
+        const namePattern =
+            /^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/;
+
+
+        if (
+            !namePattern.test(value)
+        ) {
+
+            return {
+
+                valid: false,
+
+                message:
+                    "Invalid name. Please enter your name using letters only.",
+
+                voice:
+                    "That is not a valid name. A name should contain letters only. Please say your name again."
+
+            };
+
+        }
+
+
+        return {
+
+            valid: true,
+
+            value: value
+
+        };
+
+    }
+
+
+    /*
+     =====================================================
+     EMAIL VALIDATION
+     =====================================================
+    */
+
+    const fieldType =
+        (
+            field.type ||
+            ""
+        ).toLowerCase();
+
+
+    const isEmailField =
+        fieldType === "email";
+
+
+    const emailByLabel =
+        combinedText.includes("email") ||
+        combinedText.includes("e-mail");
+
+
+    if (
+        isEmailField ||
+        emailByLabel
+    ) {
+
+        const emailPattern =
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+        if (
+            !emailPattern.test(value)
+        ) {
+
+            return {
+
+                valid: false,
+
+                message:
+                    "Please provide a valid email address.",
+
+                voice:
+                    "That does not look like a valid email address. Please say your email address again."
+
+            };
+
+        }
+
+
+        return {
+
+            valid: true,
+
+            value: value
+
+        };
+
+    }
+
+
+    /*
+     =====================================================
+     PHONE VALIDATION
+     =====================================================
+    */
+
+    const phoneKeywords = [
+
+        "phone",
+        "mobile",
+        "telephone",
+        "contact number",
+        "phone number",
+        "mobile number",
+        "telephone number"
+
+    ];
+
+
+    const isPhoneField =
+        phoneKeywords.some(
+            function(keyword) {
+
+                return combinedText
+                    .includes(keyword);
+
+            }
+        );
+
+
+    if (isPhoneField) {
+
+        const phonePattern =
+            /^[+]?[0-9][0-9\s()-]{6,19}$/;
+
+
+        if (
+            !phonePattern.test(value)
+        ) {
+
+            return {
+
+                valid: false,
+
+                message:
+                    "Please provide a valid phone number.",
+
+                voice:
+                    "That is not a valid phone number. Please say your phone number again."
+
+            };
+
+        }
+
+
+        return {
+
+            valid: true,
+
+            value: value
+
+        };
+
+    }
+
+
+    /*
+     =====================================================
+     NUMBER VALIDATION
+     =====================================================
+    */
+
+    const isNumberType =
+        fieldType === "number";
+
+
+    const numberKeywords = [
+
+        "age",
+        "amount",
+        "quantity",
+        "number",
+        "count",
+        "years"
+
+    ];
+
+
+    const isNumberField =
+        numberKeywords.some(
+            function(keyword) {
+
+                return combinedText
+                    .includes(keyword);
+
+            }
+        );
+
+
+    /*
+     IMPORTANT:
+
+     Do not classify a NAME as number just because
+     the field name contains something unusual.
+
+     Name validation was already handled above.
+    */
+
+    if (
+        isNumberType ||
+        isNumberField
+    ) {
+
+        if (
+            value === "" ||
+            isNaN(Number(value))
+        ) {
+
+            return {
+
+                valid: false,
+
+                message:
+                    "Please provide a valid number.",
+
+                voice:
+                    "That is not a valid number. Please provide a valid number."
+
+            };
+
+        }
+
+
+        return {
+
+            valid: true,
+
+            value: value
+
+        };
+
+    }
+
+
+    /*
+     =====================================================
+     DATE VALIDATION
+     =====================================================
+    */
+
+    const isDateType =
+        fieldType === "date";
+
+
+    const isDateField =
+        combinedText.includes("date") ||
+        combinedText.includes("dob") ||
+        combinedText.includes("birth");
+
+
+    if (
+        isDateType ||
+        isDateField
+    ) {
+
+        const converted =
+            convertToDate(value);
+
+
+        if (!converted) {
+
+            return {
+
+                valid: false,
+
+                message:
+                    "Please provide a valid date.",
+
+                voice:
+                    "I could not understand that date. Please say the date again."
+
+            };
+
+        }
+
+
+        return {
+
+            valid: true,
+
+            value: converted
+
+        };
+
+    }
+
+
+    /*
+     =====================================================
+     DROPDOWN
+     =====================================================
+    */
+
+    if (
+        fieldType === "select" ||
+        fieldType === "dropdown"
+    ) {
+
+        if (!value) {
+
+            return {
+
+                valid: false,
+
+                message:
+                    "Please select an option.",
+
+                voice:
+                    "Please provide one of the available options."
+
+            };
+
+        }
+
+    }
+
+
+    /*
+     =====================================================
+     GENERAL TEXT
+     =====================================================
+
+     If the field has no special detectable
+     requirement, normal text is accepted.
+    */
+
+    return {
+
+        valid: true,
+
+        value: value
+
+    };
+
+}
+
+
+
+/* ======================================================
+   DATE CONVERSION
+   ====================================================== */
+
+function convertToDate(text) {
+
+    const value =
+        text
+            .toLowerCase()
+            .trim();
+
+
+    if (
+        /^\d{4}-\d{2}-\d{2}$/
+            .test(value)
+    ) {
+
+        return value;
+
+    }
+
+
+    const months = {
+
+        january: "01",
+        february: "02",
+        march: "03",
+        april: "04",
+        may: "05",
+        june: "06",
+        july: "07",
+        august: "08",
+        september: "09",
+        october: "10",
+        november: "11",
+        december: "12"
+
+    };
+
+
+    let match =
+        value.match(
+            /(\d{1,2})\s+(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{4})/
+        );
+
+
+    if (!match) {
+
+        match =
+            value.match(
+                /(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})\s+(\d{4})/
+            );
+
+
+        if (match) {
+
+            return (
+                match[3] +
+                "-" +
+                months[match[1]] +
+                "-" +
+                String(match[2])
+                    .padStart(2, "0")
+            );
+
+        }
+
+    }
+
+
+    if (match) {
+
+        return (
+            match[3] +
+            "-" +
+            months[match[2]] +
+            "-" +
+            String(match[1])
+                .padStart(2, "0")
+        );
+
+    }
+
+
+    const parsed =
+        new Date(value);
+
+
+    if (
+        !isNaN(
+            parsed.getTime()
+        )
+    ) {
+
+        return (
+            parsed.getFullYear() +
+            "-" +
+            String(
+                parsed.getMonth() + 1
+            ).padStart(2, "0") +
+            "-" +
+            String(
+                parsed.getDate()
+            ).padStart(2, "0")
+        );
+
+    }
+
+
+    return null;
+
+}
+
+
+
+/* ======================================================
+   MARK VALID
+   ====================================================== */
+
+function markValid(index, message) {
+
+    const field =
+        document.getElementById(
+            "field-" + index
+        );
+
+
+    const msg =
+        document.getElementById(
+            "message-" + index
+        );
+
+
+    if (!field || !msg) {
+
+        return;
+
+    }
+
+
+    field.classList.remove(
+        "invalid",
+        "active"
+    );
+
+
+    field.classList.add(
+        "valid"
+    );
+
+
+    msg.textContent =
+        message;
+
+
+    msg.className =
+        "field-message success";
+
+}
+
+
+
+/* ======================================================
+   MARK INVALID
+   ====================================================== */
+
+function markInvalid(index, message) {
+
+    const field =
+        document.getElementById(
+            "field-" + index
+        );
+
+
+    const msg =
+        document.getElementById(
+            "message-" + index
+        );
+
+
+    if (!field || !msg) {
+
+        return;
+
+    }
+
+
+    field.classList.remove(
+        "valid"
+    );
+
+
+    field.classList.add(
+        "invalid",
+        "active"
+    );
+
+
+    msg.textContent =
+        "✕ " +
+        message;
+
+
+    msg.className =
+        "field-message error";
+
+}
+
+
+
+/* ======================================================
+   CLEAR HIGHLIGHTS
+   ====================================================== */
+
+function clearHighlights() {
+
+    document
+        .querySelectorAll(".field")
+        .forEach(
+            function(field) {
+
+                field.classList.remove(
+                    "active",
+                    "invalid"
+                );
+
+            }
+        );
+
+}
+
+
+
+/* ======================================================
+   CLEAR CURRENT ANSWER
+   ====================================================== */
+
+function clearCurrentAnswer() {
+
+    if (
+        currentFieldIndex >=
+        extractedFields.length
+    ) {
+
+        return;
+
+    }
+
+
+    const input =
+        document.getElementById(
+            "dynamic-field-" +
+            currentFieldIndex
+        );
+
+
+    if (input) {
+
+        input.value = "";
+
+    }
+
+
+    const field =
+        document.getElementById(
+            "field-" +
+            currentFieldIndex
+        );
+
+
+    if (field) {
+
+        field.classList.remove(
+            "valid",
+            "invalid"
+        );
+
+    }
+
+
+    const message =
+        document.getElementById(
+            "message-" +
+            currentFieldIndex
+        );
+
+
+    if (message) {
+
+        message.textContent = "";
+
+        message.className =
+            "field-message";
+
+    }
+
+
+    const currentField =
+        extractedFields[
+            currentFieldIndex
+        ];
+
+
+    delete answers[
+        currentField.name ||
+        "field_" +
+        currentFieldIndex
+    ];
+
+
+    validationPassed[
+        currentFieldIndex
+    ] = false;
+
+
+    speak(
+        "The answer has been cleared. Please answer again."
+    );
+
+
+    setTimeout(
+        function() {
+
+            startListening();
+
+        },
+        1200
+    );
+
+}
+
+
+
+/* ======================================================
+   FINISH ASSISTANT
+   ====================================================== */
+
+function finishAssistant() {
+
+    clearHighlights();
+
+
+    document
+        .getElementById("question")
+        .textContent =
+        "All extracted form questions have been answered successfully.";
+
+
+    document
+        .getElementById("progress")
+        .textContent =
+        "✓ Form completed";
+
+
+    document
+        .getElementById("voiceStatus")
+        .textContent =
+        "✓ All extracted fields have been filled.";
+
+
+    speak(
+        "All questions from the uploaded form have been answered successfully. Please review your information and submit the form."
+    );
+
+
+    showMessage(
+        "✓ Voice assistant completed the uploaded form. Please review your answers before submitting.",
+        "success"
+    );
+
+}
+
+
+
+/* ======================================================
+   MESSAGE
+   ====================================================== */
+
+function showMessage(text, type) {
+
+    const message =
+        document.getElementById(
+            "mainMessage"
+        );
+
+
+    message.textContent =
+        text;
+
+
+    message.className =
+        "message " + type;
+
+}
+
+
+
+/* ======================================================
+   FINAL FORM VALIDATION BEFORE SUBMIT
+   ====================================================== */
+
+document
+    .getElementById("smartForm")
+    .addEventListener(
+        "submit",
+        function(event) {
+
+            if (
+                !extractedFields.length
+            ) {
+
+                event.preventDefault();
+
+
+                showMessage(
+                    "Please load a form first.",
+                    "error"
+                );
+
+
+                return;
+
+            }
+
+
+            /*
+             Validate every extracted field
+             before allowing submission.
+            */
+
+            for (
+                let i = 0;
+                i < extractedFields.length;
+                i++
+            ) {
+
+                const field =
+                    extractedFields[i];
+
+
+                const input =
+                    document.getElementById(
+                        "dynamic-field-" + i
+                    );
+
+
+                if (!input) {
+
+                    continue;
+
+                }
+
+
+                const value =
+                    input.value.trim();
+
+
+                /*
+                 Required field
+                */
+
+                if (
+                    field.required &&
+                    !value
+                ) {
+
+                    event.preventDefault();
+
+
+                    markInvalid(
+                        i,
+                        "This field is required."
+                    );
+
+
+                    speak(
+                        "Please complete the required field " +
+                        (
+                            field.label ||
+                            field.name ||
+                            ""
+                        )
+                    );
+
+
+                    input.focus();
+
+
+                    return;
+
+                }
+
+
+                /*
+                 Validate field even if
+                 user typed manually.
+                */
+
+                if (value) {
+
+                    const validation =
+                        validateExtractedField(
+                            field,
+                            value
+                        );
+
+
+                    if (!validation.valid) {
+
+                        event.preventDefault();
+
+
+                        validationPassed[i] =
+                            false;
+
+
+                        markInvalid(
+                            i,
+                            validation.message
+                        );
+
+
+                        speak(
+                            validation.voice
+                        );
+
+
+                        input.focus();
+
+
+                        return;
+
+                    }
+
+
+                    /*
+                     Store normalized value.
+                    */
+
+                    input.value =
+                        validation.value;
+
+
+                    validationPassed[i] =
+                        true;
+
+                }
+
+            }
+
+
+            /*
+             Everything passed validation.
+             Form submission is allowed.
+            */
+
+            showMessage(
+                "✓ All answers are valid. Submitting the form...",
+                "success"
+            );
+
+        }
+    );
+
+
+</script>
+
+
+</body>
+
+</html>

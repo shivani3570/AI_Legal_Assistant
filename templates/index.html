@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Legal Assistant</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f7f9fc;
+            color: #172033;
+            overflow-x: hidden;
+        }
+
+        /* ================= NAVBAR ================= */
+
+        nav {
+            width: 100%;
+            height: 74px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            background: rgba(255,255,255,0.95);
+            border-bottom: 1px solid #e8edf5;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(12px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 21px;
+            font-weight: 800;
+            color: #172033;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 22px;
+            box-shadow: 0 8px 20px rgba(37,99,235,0.25);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #596579;
+            font-size: 15px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: #2563eb;
+        }
+
+        .nav-button {
+            padding: 11px 20px;
+            border-radius: 9px;
+            background: #2563eb;
+            color: white !important;
+        }
+
+        .nav-button:hover {
+            background: #1d4ed8;
+            color: white !important;
+        }
+
+        /* ================= HERO ================= */
+
+        .hero {
+            min-height: 650px;
+            padding: 80px 7% 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 60px;
+            background:
+                radial-gradient(circle at 80% 20%, rgba(124,58,237,0.10), transparent 30%),
+                radial-gradient(circle at 20% 40%, rgba(37,99,235,0.10), transparent 35%),
+                #f8faff;
+        }
+
+        .hero-left {
+            max-width: 650px;
+            animation: fadeUp 0.8s ease;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 30px;
+            background: #eef4ff;
+            color: #2563eb;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 22px;
+            border: 1px solid #dce8ff;
+        }
+
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 0 4px rgba(34,197,94,0.12);
+        }
+
+        .hero h1 {
+            font-size: clamp(42px, 5vw, 68px);
+            line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 24px;
+            color: #111827;
+        }
+
+        .gradient-text {
+            background: linear-gradient(
+                90deg,
+                #2563eb,
+                #7c3aed
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 19px;
+            line-height: 1.7;
+            color: #647084;
+            max-width: 590px;
+            margin-bottom: 32px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .primary-btn,
+        .secondary-btn {
+            padding: 15px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            transition: 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: white;
+            box-shadow: 0 12px 25px rgba(37,99,235,0.25);
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 17px 30px rgba(37,99,235,0.32);
+        }
+
+        .secondary-btn {
+            background: white;
+            color: #263247;
+            border: 1px solid #dce3ee;
+        }
+
+        .secondary-btn:hover {
+            transform: translateY(-3px);
+            border-color: #b9c8df;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+        }
+
+        /* ================= AI CARD ================= */
+
+        .hero-right {
+            width: 440px;
+            max-width: 100%;
+            animation: floating 4s ease-in-out infinite;
+        }
+
+        .ai-card {
+            background: rgba(255,255,255,0.92);
+            border: 1px solid #e3e9f2;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow:
+                0 25px 70px rgba(30,41,59,0.12),
+                0 5px 20px rgba(37,99,235,0.07);
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+
+        .ai-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+        }
+
+        .ai-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+        }
+
+        .online {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #16a34a;
+            font-weight: 700;
+        }
+
+        .online span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        .chat {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .message {
+            padding: 14px 16px;
+            border-radius: 14px;
+            font-size: 14px;
+            line-height: 1.5;
+            max-width: 88%;
+        }
+
+        .ai-message {
+            background: #f1f5ff;
+            color: #334155;
+            border-bottom-left-radius: 4px;
+        }
+
+        .user-message {
+            background: #2563eb;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .input-preview {
+            margin-top: 18px;
+            padding: 13px;
+            background: #f8fafc;
+            border: 1px solid #e5eaf2;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .mic {
+            margin-left: auto;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #e9efff;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ================= TRUST ================= */
+
+        .trust {
+            padding: 25px 7%;
+            background: white;
+            border-top: 1px solid #edf0f5;
+            border-bottom: 1px solid #edf0f5;
+            display: flex;
+            justify-content: center;
+            gap: 55px;
+            flex-wrap: wrap;
+            color: #687386;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .check {
+            color: #16a34a;
+            font-weight: 900;
+        }
+
+        /* ================= FEATURES ================= */
+
+        .features {
+            padding: 90px 7%;
+            background: #ffffff;
+        }
+
+        .section-heading {
+            text-align: center;
+            max-width: 650px;
+            margin: 0 auto 50px;
+        }
+
+        .section-heading span {
+            color: #2563eb;
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-heading h2 {
+            font-size: 38px;
+            margin: 12px 0 15px;
+            color: #111827;
+        }
+
+        .section-heading p {
+            color: #6b7688;
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        .feature-grid {
+            max-width: 1150px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+        }
+
+        .feature-card {
+            padding: 28px;
+            border: 1px solid #e7ebf2;
+            border-radius: 17px;
+            background: white;
+            transition: 0.25s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 18px 40px rgba(15,23,42,0.08);
+            border-color: #d4def0;
+        }
+
+        .feature-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: #eef4ff;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 23px;
+            margin-bottom: 19px;
+        }
+
+        .feature-card h3 {
+            font-size: 19px;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: #6b7688;
+            font-size: 14px;
+            line-height: 1.65;
+        }
+
+        /* ================= HOW IT WORKS ================= */
+
+        .how {
+            padding: 90px 7%;
+            background: #f7f9fc;
+        }
+
+        .steps {
+            max-width: 1050px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .step {
+            position: relative;
+            text-align: center;
+            padding: 25px 15px;
+        }
+
+        .step-number {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            margin: 0 auto 18px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            box-shadow: 0 10px 20px rgba(37,99,235,0.2);
+        }
+
+        .step h3 {
+            margin-bottom: 8px;
+            font-size: 17px;
+        }
+
+        .step p {
+            color: #6b7688;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* ================= CTA ================= */
+
+        .cta {
+            padding: 90px 7%;
+            background: white;
+        }
+
+        .cta-box {
+            max-width: 1100px;
+            margin: auto;
+            padding: 55px;
+            border-radius: 25px;
+            text-align: center;
+            color: white;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.12), transparent 30%),
+                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.10), transparent 30%),
+                linear-gradient(135deg, #1d4ed8, #6d28d9);
+            box-shadow: 0 25px 60px rgba(37,99,235,0.2);
+        }
+
+        .cta-box h2 {
+            font-size: 36px;
+            margin-bottom: 13px;
+        }
+
+        .cta-box p {
+            opacity: 0.88;
+            margin-bottom: 27px;
+            line-height: 1.6;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 14px 25px;
+            border-radius: 9px;
+            background: white;
+            color: #2451c5;
+            text-decoration: none;
+            font-weight: 800;
+            transition: 0.2s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+        }
+
+        /* ================= FOOTER ================= */
+
+        footer {
+            background: #111827;
+            color: #aeb8c8;
+            padding: 35px 7%;
+        }
+
+        .footer-content {
+            max-width: 1150px;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .footer-logo {
+            color: white;
+            font-weight: 800;
+        }
+
+        .footer-text {
+            font-size: 13px;
+        }
+
+        /* ================= ANIMATIONS ================= */
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes floating {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        /* ================= MOBILE ================= */
+
+        @media (max-width: 900px) {
+
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding-top: 60px;
+            }
+
+            .hero-left {
+                max-width: 700px;
+            }
+
+            .hero p {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .hero-right {
+                width: 500px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .steps {
+                grid-template-columns: 1fr 1fr;
+            }
+
+        }
+
+        @media (max-width: 650px) {
+
+            nav {
+                padding: 0 5%;
+            }
+
+            .nav-links a:not(.nav-button) {
+                display: none;
+            }
+
+            .hero {
+                padding-left: 5%;
+                padding-right: 5%;
+            }
+
+            .hero h1 {
+                font-size: 42px;
+            }
+
+            .hero p {
+                font-size: 16px;
+            }
+
+            .hero-right {
+                width: 100%;
+            }
+
+            .trust {
+                gap: 20px;
+                padding-left: 5%;
+                padding-right: 5%;
+            }
+
+            .features,
+            .how,
+            .cta {
+                padding-left: 5%;
+                padding-right: 5%;
+            }
+
+            .section-heading h2 {
+                font-size: 30px;
+            }
+
+            .feature-grid,
+            .steps {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-box {
+                padding: 40px 22px;
+            }
+
+            .cta-box h2 {
+                font-size: 28px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- ================= NAVBAR ================= -->
+
+<nav>
+
+    <div class="logo">
+
+        <div class="logo-icon">
+            ⚖
+        </div>
+
+        AI Legal Assistant
+
+    </div>
+
+
+    <div class="nav-links">
+
+        <a href="#features">
+            Features
+        </a>
+
+        <a href="#how">
+            How It Works
+        </a>
+
+        <a
+            href="/legal?language=english"
+            class="nav-button"
+        >
+            Legal Assistant
+        </a>
+
+    </div>
+
+</nav>
+
+
+
+<!-- ================= HERO ================= -->
+
+<section class="hero">
+
+
+    <div class="hero-left">
+
+        <div class="badge">
+
+            <span class="badge-dot"></span>
+
+            AI-Powered Document & Form Assistant
+
+        </div>
+
+
+        <h1>
+
+            Make Legal Forms
+
+            <br>
+
+            <span class="gradient-text">
+                Simple & Smarter.
+            </span>
+
+        </h1>
+
+
+        <p>
+
+            Upload a document or provide a form link.
+            Your intelligent assistant helps understand
+            the information required, asks questions,
+            collects your answers and guides you through
+            the process.
+
+        </p>
+
+
+        <div class="hero-buttons">
+
+            <a
+                href="/smart-form?language=english"
+                class="primary-btn"
+            >
+
+                🚀 Start Smart Form
+
+            </a>
+
+
+            <a
+                href="/legal?language=english"
+                class="secondary-btn"
+            >
+
+                📄 Analyze Document
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ================= AI PREVIEW ================= -->
+
+    <div class="hero-right">
+
+        <div class="ai-card">
+
+
+            <div class="card-top">
+
+                <div class="ai-title">
+
+                    <div class="ai-avatar">
+                        🤖
+                    </div>
+
+                    <div>
+
+                        <div>
+                            Smart Assistant
+                        </div>
+
+                        <small style="color:#7b8799;">
+                            Your AI form companion
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="online">
+
+                    <span></span>
+
+                    Online
+
+                </div>
+
+            </div>
+
+
+
+            <div class="chat">
+
+
+                <div class="message ai-message">
+
+                    👋 Hello! I'm your AI assistant.
+                    I'll help you complete this form.
+
+                </div>
+
+
+                <div class="message ai-message">
+
+                    What is your full name?
+
+                </div>
+
+
+                <div class="message user-message">
+
+                    Shivani K S
+
+                </div>
+
+
+                <div class="message ai-message">
+
+                    ✓ Thank you. Your answer looks valid.
+
+                </div>
+
+
+                <div class="input-preview">
+
+                    🎤
+
+                    Speak or type your answer
+
+                    <div class="mic">
+                        🎙
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+</section>
+
+
+
+<!-- ================= TRUST ================= -->
+
+<div class="trust">
+
+    <div class="trust-item">
+        <span class="check">✓</span>
+        Voice Assisted
+    </div>
+
+    <div class="trust-item">
+        <span class="check">✓</span>
+        Smart Form Assistance
+    </div>
+
+    <div class="trust-item">
+        <span class="check">✓</span>
+        Document Analysis
+    </div>
+
+    <div class="trust-item">
+        <span class="check">✓</span>
+        Multiple Languages
+    </div>
+
+</div>
+
+
+
+<!-- ================= FEATURES ================= -->
+
+<section
+    class="features"
+    id="features"
+>
+
+
+    <div class="section-heading">
+
+        <span>
+            Powerful Features
+        </span>
+
+        <h2>
+            One Assistant. Multiple Tasks.
+        </h2>
+
+        <p>
+            Designed to make complicated documents and
+            online forms easier to understand and complete.
+        </p>
+
+    </div>
+
+
+
+    <div class="feature-grid">
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🤖
+            </div>
+
+            <h3>
+                AI Form Assistant
+            </h3>
+
+            <p>
+                The assistant identifies form fields and
+                guides the user through the information
+                that needs to be provided.
+            </p>
+
+        </div>
+
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🎙️
+            </div>
+
+            <h3>
+                Voice Assistance
+            </h3>
+
+            <p>
+                Users can listen to questions and provide
+                answers using their voice or keyboard.
+            </p>
+
+        </div>
+
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                📄
+            </div>
+
+            <h3>
+                Document Analysis
+            </h3>
+
+            <p>
+                Upload a PDF document and extract its
+                text for easier understanding and analysis.
+            </p>
+
+        </div>
+
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🌐
+            </div>
+
+            <h3>
+                Multiple Languages
+            </h3>
+
+            <p>
+                The assistant interface supports multiple
+                language options for a more accessible
+                experience.
+            </p>
+
+        </div>
+
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                ✓
+            </div>
+
+            <h3>
+                Answer Validation
+            </h3>
+
+            <p>
+                Answers can be checked before moving to
+                the next field, helping users avoid common
+                input mistakes.
+            </p>
+
+        </div>
+
+
+
+        <div class="feature-card">
+
+            <div class="feature-icon">
+                🔗
+            </div>
+
+            <h3>
+                Form Link Support
+            </h3>
+
+            <p>
+                Provide an online form link and the
+                assistant can attempt to analyze its
+                fields automatically.
+            </p>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ================= HOW IT WORKS ================= -->
+
+<section
+    class="how"
+    id="how"
+>
+
+
+    <div class="section-heading">
+
+        <span>
+            Simple Process
+        </span>
+
+        <h2>
+            How It Works
+        </h2>
+
+        <p>
+            Complete your documents and forms with a
+            simple guided workflow.
+        </p>
+
+    </div>
+
+
+
+    <div class="steps">
+
+
+        <div class="step">
+
+            <div class="step-number">
+                1
+            </div>
+
+            <h3>
+                Upload or Link
+            </h3>
+
+            <p>
+                Upload your document or provide
+                an online form link.
+            </p>
+
+        </div>
+
+
+
+        <div class="step">
+
+            <div class="step-number">
+                2
+            </div>
+
+            <h3>
+                Analyze
+            </h3>
+
+            <p>
+                The assistant identifies the
+                information required.
+            </p>
+
+        </div>
+
+
+
+        <div class="step">
+
+            <div class="step-number">
+                3
+            </div>
+
+            <h3>
+                Answer
+            </h3>
+
+            <p>
+                Answer questions by typing or
+                using voice assistance.
+            </p>
+
+        </div>
+
+
+
+        <div class="step">
+
+            <div class="step-number">
+                4
+            </div>
+
+            <h3>
+                Review
+            </h3>
+
+            <p>
+                Review your collected answers
+                before continuing.
+            </p>
+
+        </div>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- ================= CTA ================= -->
+
+<section class="cta">
+
+
+    <div class="cta-box">
+
+        <h2>
+            Ready to make forms easier?
+        </h2>
+
+        <p>
+            Let your AI assistant guide you through
+            the information you need to provide.
+        </p>
+
+
+        <a
+            href="/smart-form?language=english"
+            class="cta-button"
+        >
+
+            🚀 Try Smart Assistant
+
+        </a>
+
+    </div>
+
+
+</section>
+
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer>
+
+    <div class="footer-content">
+
+        <div class="footer-logo">
+            ⚖ AI Legal Assistant
+        </div>
+
+        <div class="footer-text">
+            AI-powered assistance for documents and forms
+        </div>
+
+        <div class="footer-text">
+            © 2026
+        </div>
+
+    </div>
+
+</footer>
+
+
+
+</body>
+
+</html>

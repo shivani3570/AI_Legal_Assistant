@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Manual Form Filling</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Manual Form Filling</h1>
+
+    <p>
+        <strong>Selected Language:</strong> {{ language }}
+    </p>
+
+    <div class="manual-toolbar">
+
+        <input type="text"
+               id="textInput"
+               placeholder="Type information to add to the form">
+
+        <button type="button" onclick="startAddingText()">
+            Add Text
+        </button>
+
+        <button type="button" onclick="downloadForm()">
+            Download Completed Form
+        </button>
+
+    </div>
+
+    <p id="instruction">
+        Enter information above and click "Add Text".
+        Then click the location on the form where you want to place it.
+    </p>
+
+    <div class="form-editor">
+
+        <canvas id="formCanvas"></canvas>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const canvas = document.getElementById("formCanvas");
+const ctx = canvas.getContext("2d");
+
+const image = new Image();
+
+image.src = "{{ url_for('uploaded_file', filename=filename) }}";
+
+let addingText = false;
+
+image.onload = function () {
+
+    const maxWidth = 900;
+
+    let scale = 1;
+
+    if (image.width > maxWidth) {
+        scale = maxWidth / image.width;
+    }
+
+    canvas.width = image.width * scale;
+    canvas.height = image.height * scale;
+
+    ctx.drawImage(
+        image,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+};
+
+
+function startAddingText() {
+
+    const text = document.getElementById("textInput").value;
+
+    if (text.trim() === "") {
+        alert("Please enter information first.");
+        return;
+    }
+
+    addingText = true;
+
+    document.getElementById("instruction").innerText =
+        "Now click on the form where you want to place the text.";
+}
+
+
+canvas.addEventListener("click", function(event) {
+
+    if (!addingText) {
+        return;
+    }
+
+    const text = document.getElementById("textInput").value;
+
+    const rect = canvas.getBoundingClientRect();
+
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    ctx.font = "18px Arial";
+    ctx.fillStyle = "black";
+
+    ctx.fillText(text, x, y);
+
+    document.getElementById("textInput").value = "";
+
+    addingText = false;
+
+    document.getElementById("instruction").innerText =
+        "Text added. Enter the next information or download the completed form.";
+});
+
+
+function downloadForm() {
+
+    const link = document.createElement("a");
+
+    link.download = "completed_form.png";
+
+    link.href = canvas.toDataURL("image/png");
+
+    link.click();
+}
+
+</script>
+
+</body>
+
+</html>

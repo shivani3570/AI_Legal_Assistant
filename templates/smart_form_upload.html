@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Uploaded Form</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Smart Form Filling Assistant</h1>
+
+        <div class="card">
+
+            <h2>Form Uploaded Successfully</h2>
+
+            <p>
+                <strong>Selected Language:</strong> {{ language }}
+            </p>
+
+            <p>
+                <strong>Uploaded Form:</strong> {{ filename }}
+            </p>
+
+            <div class="info-box">
+
+                <h3>Choose Filling Method</h3>
+
+                <p>
+                    You can fill the uploaded form manually
+                    or use the AI-based Smart Form Filling Assistant.
+                </p>
+
+                <div class="form-options">
+
+                    <a href="{{ url_for('smart_form_manual', filename=filename, language=language) }}"
+   class="form-option-button">
+    ✍️ Fill Manually
+</a>
+
+                    <button type="button">
+                        🤖 Use Smart Assistant
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

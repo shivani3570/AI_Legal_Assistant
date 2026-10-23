@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Document Explainer</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background:
+                radial-gradient(circle at top left, #dbeafe 0%, transparent 35%),
+                radial-gradient(circle at bottom right, #ede9fe 0%, transparent 35%),
+                #f8fafc;
+            color: #172033;
+            min-height: 100vh;
+        }
+
+        /* ================= HEADER ================= */
+
+        .navbar {
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            background: rgba(255,255,255,0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #e5e7eb;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 21px;
+            font-weight: 800;
+            color: #1e3a8a;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            font-size: 20px;
+            box-shadow: 0 7px 18px rgba(37,99,235,0.25);
+        }
+
+        .nav-badge {
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 8px 15px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* ================= MAIN ================= */
+
+        .main {
+            max-width: 1100px;
+            margin: auto;
+            padding: 55px 25px 70px;
+        }
+
+        .hero {
+            text-align: center;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 9px 17px;
+            border-radius: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+            color: #4f46e5;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .pulse {
+            width: 9px;
+            height: 9px;
+            background: #22c55e;
+            border-radius: 50%;
+            box-shadow: 0 0 0 5px #dcfce7;
+        }
+
+        h1 {
+            font-size: 48px;
+            line-height: 1.12;
+            margin: 10px 0 15px;
+            letter-spacing: -1.5px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            line-height: 1.7;
+            color: #64748b;
+            margin: 0 auto;
+            max-width: 680px;
+        }
+
+        /* ================= EXPLAINER CARD ================= */
+
+        .explainer-card {
+            max-width: 850px;
+            margin: 45px auto 0;
+            background: white;
+            border-radius: 24px;
+            padding: 35px;
+            box-shadow:
+                0 20px 60px rgba(15,23,42,0.10),
+                0 2px 8px rgba(15,23,42,0.05);
+            border: 1px solid #eef2f7;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 25px;
+        }
+
+        .document-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 15px;
+            background: #eff6ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+        }
+
+        .card-title h2 {
+            margin: 0;
+            font-size: 21px;
+        }
+
+        .card-title p {
+            margin: 5px 0 0;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        /* ================= UPLOAD AREA ================= */
+
+        .upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 18px;
+            padding: 40px 25px;
+            text-align: center;
+            background: #f8fafc;
+            transition: 0.25s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #6366f1;
+            background: #f5f3ff;
+            transform: translateY(-2px);
+        }
+
+        .upload-icon {
+            width: 70px;
+            height: 70px;
+            margin: auto;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #dbeafe, #ede9fe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 34px;
+            margin-bottom: 18px;
+        }
+
+        .upload-area h3 {
+            margin: 0 0 8px;
+            font-size: 20px;
+        }
+
+        .upload-area p {
+            color: #64748b;
+            margin: 0 0 22px;
+            font-size: 14px;
+        }
+
+        /* ================= FILE INPUT ================= */
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .file-button {
+            display: inline-block;
+            padding: 12px 22px;
+            border-radius: 10px;
+            background: #2563eb;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 8px 20px rgba(37,99,235,0.22);
+        }
+
+        .file-button:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-name {
+            margin-top: 13px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        /* ================= LANGUAGE ================= */
+
+        .language-section {
+            margin-top: 25px;
+        }
+
+        .language-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 9px;
+            color: #334155;
+        }
+
+        select {
+            width: 100%;
+            padding: 13px 15px;
+            border: 1px solid #dbe1ea;
+            border-radius: 10px;
+            background: white;
+            font-size: 15px;
+            color: #334155;
+            outline: none;
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.10);
+        }
+
+        /* ================= SUBMIT BUTTON ================= */
+
+        .submit-button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(79,70,229,0.25);
+            transition: 0.25s;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(79,70,229,0.32);
+        }
+
+        /* ================= FEATURES ================= */
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 35px;
+        }
+
+        .feature {
+            background: rgba(255,255,255,0.85);
+            border: 1px solid #e8edf4;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: 0.25s;
+        }
+
+        .feature:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(15,23,42,0.08);
+        }
+
+        .feature-icon {
+            font-size: 25px;
+            margin-bottom: 10px;
+        }
+
+        .feature h3 {
+            font-size: 15px;
+            margin: 0 0 6px;
+        }
+
+        .feature p {
+            margin: 0;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* ================= FOOTER ================= */
+
+        .footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 40px;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 700px) {
+
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .nav-badge {
+                display: none;
+            }
+
+            h1 {
+                font-size: 36px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+            }
+
+            .explainer-card {
+                padding: 22px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- ================= NAVBAR ================= -->
+
+<nav class="navbar">
+
+    <div class="logo">
+
+        <div class="logo-icon">
+            ⚖️
+        </div>
+
+        AI Legal Assistant
+
+    </div>
+
+
+    <div class="nav-badge">
+        ✨ AI Powered
+    </div>
+
+</nav>
+
+
+<!-- ================= MAIN ================= -->
+
+<main class="main">
+
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <div class="ai-badge">
+
+            <span class="pulse"></span>
+
+            Smart Document Analysis
+
+        </div>
+
+
+        <h1>
+
+            Understand Your
+
+            <span class="gradient-text">
+                Legal Documents
+            </span>
+
+        </h1>
+
+
+        <p class="subtitle">
+
+            Upload your legal document and let the AI
+            assistant explain complex legal information
+            in a simple and understandable way.
+
+        </p>
+
+    </section>
+
+
+
+    <!-- EXPLAINER -->
+
+    <section class="explainer-card">
+
+
+        <div class="card-title">
+
+            <div class="document-icon">
+                📄
+            </div>
+
+            <div>
+
+                <h2>
+                    Document Explainer
+                </h2>
+
+                <p>
+                    Upload a document to get started
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- IMPORTANT:
+             Existing Flask upload functionality
+             is preserved.
+        -->
+
+        <form
+            action="/upload"
+            method="POST"
+            enctype="multipart/form-data"
+        >
+
+
+            <!-- UPLOAD -->
+
+            <div
+                class="upload-area"
+                onclick="document.getElementById('document').click()"
+            >
+
+                <div class="upload-icon">
+                    ☁️
+                </div>
+
+
+                <h3>
+                    Upload your document
+                </h3>
+
+
+                <p>
+                    PDF documents are supported
+                </p>
+
+
+                <div class="file-input-wrapper">
+
+                    <label
+                        for="document"
+                        class="file-button"
+                        onclick="event.stopPropagation()"
+                    >
+                        📁 Choose Document
+                    </label>
+
+
+                    <input
+                        type="file"
+                        id="document"
+                        name="document"
+                        accept=".pdf,application/pdf"
+                        required
+                    >
+
+                </div>
+
+
+                <div
+                    class="file-name"
+                    id="fileName"
+                >
+                    No document selected
+                </div>
+
+            </div>
+
+
+
+            <!-- LANGUAGE -->
+
+            <div class="language-section">
+
+                <label
+                    class="language-label"
+                    for="language"
+                >
+                    🌐 Explanation Language
+                </label>
+
+
+                <select
+                    id="language"
+                    name="language"
+                >
+
+                    <option value="english"
+                        {% if language == "english" %}selected{% endif %}>
+                        🇬🇧 English
+                    </option>
+
+                    <option value="hindi"
+                        {% if language == "hindi" %}selected{% endif %}>
+                        🇮🇳 Hindi
+                    </option>
+
+                    <option value="kannada"
+                        {% if language == "kannada" %}selected{% endif %}>
+                        🇮🇳 Kannada
+                    </option>
+
+                    <option value="tamil"
+                        {% if language == "tamil" %}selected{% endif %}>
+                        🇮🇳 Tamil
+                    </option>
+
+                    <option value="telugu"
+                        {% if language == "telugu" %}selected{% endif %}>
+                        🇮🇳 Telugu
+                    </option>
+
+                    <option value="malayalam"
+                        {% if language == "malayalam" %}selected{% endif %}>
+                        🇮🇳 Malayalam
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- SUBMIT -->
+
+            <button
+                type="submit"
+                class="submit-button"
+            >
+
+                ✨ Analyze Document
+
+            </button>
+
+
+        </form>
+
+
+    </section>
+
+
+
+    <!-- FEATURES -->
+
+    <section class="features">
+
+
+        <div class="feature">
+
+            <div class="feature-icon">
+                🤖
+            </div>
+
+            <h3>
+                AI Analysis
+            </h3>
+
+            <p>
+                Analyze important information
+                from your document.
+            </p>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div class="feature-icon">
+                💡
+            </div>
+
+            <h3>
+                Simple Explanation
+            </h3>
+
+            <p>
+                Understand complex legal terms
+                in easier language.
+            </p>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div class="feature-icon">
+                🔒
+            </div>
+
+            <h3>
+                Easy & Secure
+            </h3>
+
+            <p>
+                Upload your document and
+                get your explanation quickly.
+            </p>
+
+        </div>
+
+
+    </section>
+
+
+
+    <div class="footer">
+
+        AI Legal Assistant • Smart Document Explainer
+
+    </div>
+
+
+</main>
+
+
+
+<script>
+
+
+/* =====================================================
+   SHOW SELECTED FILE NAME
+   This does NOT change Flask functionality.
+   ===================================================== */
+
+document
+    .getElementById("document")
+    .addEventListener(
+        "change",
+        function () {
+
+            const fileName =
+                document.getElementById(
+                    "fileName"
+                );
+
+            if (
+                this.files &&
+                this.files.length > 0
+            ) {
+
+                fileName.textContent =
+                    "📄 " +
+                    this.files[0].name;
+
+                fileName.style.color =
+                    "#2563eb";
+
+                fileName.style.fontWeight =
+                    "600";
+
+            }
+            else {
+
+                fileName.textContent =
+                    "No document selected";
+
+                fileName.style.color =
+                    "#64748b";
+
+            }
+
+        }
+    );
+
+
+</script>
+
+
+</body>
+
+</html>

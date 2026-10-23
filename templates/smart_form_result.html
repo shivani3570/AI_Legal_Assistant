@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Form Result</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Smart Legal Form Result</h1>
+
+        <div class="card">
+
+            <h2>Legal Information Summary</h2>
+
+            <div class="result-item">
+                <strong>Full Name:</strong>
+                <p>{{ name }}</p>
+            </div>
+
+            <div class="result-item">
+                <strong>Legal Issue:</strong>
+                <p>{{ issue }}</p>
+            </div>
+
+            <div class="result-item">
+                <strong>Date of Incident:</strong>
+                <p>{{ date }}</p>
+            </div>
+
+            <div class="result-item">
+                <strong>Location:</strong>
+                <p>{{ location }}</p>
+            </div>
+
+            <div class="result-item">
+                <strong>Description:</strong>
+                <p>{{ description }}</p>
+            </div>
+
+            <div class="info-box">
+                <strong>Next Step</strong>
+                <p>
+                    Your legal information has been successfully collected.
+                    In the next stage, AI can analyze these details and provide
+                    a simple explanation and possible next steps.
+                </p>
+            </div>
+
+            <a href="/smart-form">
+                <button type="button">Fill Form Again</button>
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
