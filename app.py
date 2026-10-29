@@ -1991,7 +1991,120 @@ def analyze_form():
     # ============================================================
 # VALIDATION
 # ============================================================
+# ============================================================
+# AI FORM ANSWER LANGUAGE CONVERSION
+# ============================================================
 
+@app.route("/convert-form-answer", methods=["POST"])
+def convert_form_answer():
+
+    data = request.get_json(silent=True) or {}
+
+    answer = clean_text(data.get("answer", ""))
+    target = clean_text(data.get("target", "keep")).lower()
+    field_label = clean_text(data.get("field_label", ""))
+    field_type = clean_text(data.get("field_type", "text")).lower()
+
+    if not answer:
+        return jsonify(
+            success=False,
+            error="Please provide an answer."
+        ), 400
+
+    supported_languages = {
+        "en": "English",
+        "kn": "Kannada",
+        "ta": "Tamil",
+        "hi": "Hindi",
+        "te": "Telugu"
+    }
+
+    if target == "keep":
+        return jsonify(success=True, answer=answer)
+
+    if target not in supported_languages:
+        return jsonify(
+            success=False,
+            error="The selected language is not supported."
+        ), 400
+
+    # Do not translate structured data.
+    if field_type in [
+        "email", "tel", "phone", "number",
+        "date", "url", "radio", "checkbox",
+        "select", "combobox"
+    ]:
+        return jsonify(success=True, answer=answer)
+
+    api_key = os.getenv("GROQ_API_KEY")
+
+    if not api_key:
+        return jsonify(
+            success=False,
+            error="GROQ_API_KEY is missing from your .env file."
+        ), 500
+
+    target_language = supported_languages[target]
+
+    try:
+        client = Groq(api_key=api_key)
+
+        prompt = f"""
+Convert the user's form answer into {target_language}.
+
+Form field: {field_label}
+Field type: {field_type}
+Original answer: {answer}
+
+Rules:
+- Return only the converted answer, without explanations.
+- For a person's name, transliterate the name into the
+  target script. Do not translate the meaning of the name.
+- For other text fields, translate the meaning accurately.
+- Preserve numbers, dates, addresses, and important details.
+- Do not invent information.
+"""
+
+        response = client.chat.completions.create(
+            model="openai/gpt-oss-120b",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You convert form answers accurately. "
+                        "Return only the converted answer."
+                    )
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0
+        )
+
+        converted = (
+            response.choices[0].message.content or ""
+        ).strip()
+
+        if not converted:
+            raise ValueError("The AI returned an empty answer.")
+
+        return jsonify(
+            success=True,
+            answer=converted
+        )
+
+    except Exception:
+        app.logger.exception("Form answer conversion failed")
+
+        return jsonify(
+            success=False,
+            error=(
+                "Language conversion failed. Check your Groq "
+                "API key, internet connection, and Flask terminal."
+            )
+        ), 502
 def validate_answer_internal(field, value):
 
     value = clean_text(value)

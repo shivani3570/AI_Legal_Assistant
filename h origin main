@@ -1,0 +1,11 @@
+ app.py                                             | 2197 [32m+++++[m[31m---------[m
+ demo_test_form.html                                |  128 [32m+[m
+ routes_backup.py                                   |  110 [32m+[m
+ smart_form_module/__init__.py                      |    0
+ smart_form_module/routes.py                        |  316 [32m++[m
+ smart_form_module/static/app_backup.py             | 3138 [32m++++++++++++++++++++[m
+ smart_form_module/static/smart_form.css            |    1 [32m+[m
+ smart_form_module/static/smart_form.js             |  757 [32m+++++[m
+ smart_form_module/static/smart_form.js_backup      |  490 [32m+++[m
+ .../templates/smart_form_assistant_fresh.html      |   45 [32m+[m
+ 10 files changed, 5795 insertions(+), 1387 deletions(-)
