@@ -1,131 +1,101 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Form Filling Assistant</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Form Filling Assistant</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<style>
+* { box-sizing: border-box; }
 
-        body {
-            font-family: Arial, sans-serif;
-            background: #f1f5f9;
-            margin: 0;
-            padding: 20px;
-            color: #1e293b;
-        }
+body {
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    margin: 0;
+    padding: 20px;
+    color: #1e293b;
+}
 
-        .container {
-            max-width: 750px;
-            margin: 25px auto;
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px #00000015;
-        }
+.container {
+    max-width: 850px;
+    margin: 25px auto;
+    background: white;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 4px 15px #00000015;
+}
 
-        h1, .subtitle {
-            text-align: center;
-        }
+h1, .subtitle { text-align: center; }
+.subtitle { color: #64748b; line-height: 1.6; }
 
-        .subtitle {
-            color: #64748b;
-        }
+.panel {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+}
 
-        label {
-            display: block;
-            margin: 15px 0 7px;
-            font-weight: bold;
-        }
+label {
+    display: block;
+    margin: 14px 0 7px;
+    font-weight: bold;
+}
 
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            font-size: 16px;
-        }
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    font-size: 16px;
+    background: white;
+}
 
-        button {
-            padding: 11px 16px;
-            margin: 8px 5px 0 0;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            background: #2563eb;
-            color: white;
-            font-size: 15px;
-        }
+button {
+    padding: 11px 16px;
+    margin: 8px 5px 0 0;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    background: #4f46e5;
+    color: white;
+    font-size: 15px;
+}
 
-        button:hover {
-            opacity: 0.9;
-        }
+button:hover { opacity: .9; }
+button:disabled { opacity: .5; cursor: not-allowed; }
+.secondary { background: #475569; }
+.success { background: #15803d; }
+.danger { background: #b91c1c; }
 
-        .secondary {
-            background: #475569;
-        }
+#confirmation, #completed { display: none; }
+#status { color: #166534; font-weight: bold; }
+#error { color: #b91c1c; overflow-wrap: anywhere; }
+.small { font-size: 13px; color: #64748b; line-height: 1.6; }
+.option { display: flex; gap: 10px; align-items: center; margin: 10px 0; }
+.option input { width: auto; }
+.actions { margin-top: 15px; }
+#question { font-size: 25px; }
+#translatedQuestion { color: #4f46e5; font-size: 20px; line-height: 1.6; }
+.progress { height: 8px; background: #e2e8f0; border-radius: 10px; margin: 12px 0; }
+#progressBar { height: 8px; width: 0; background: #4f46e5; border-radius: 10px; }
+.review-row { padding: 12px 0; border-bottom: 1px solid #e2e8f0; overflow-wrap: anywhere; }
 
-        .success {
-            background: #15803d;
-        }
-
-        .danger {
-            background: #b91c1c;
-        }
-
-        .panel {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 18px;
-            margin-top: 20px;
-        }
-
-        #confirmation, #completed {
-            display: none;
-        }
-
-        #status {
-            color: #166534;
-            font-weight: bold;
-        }
-
-        #error {
-            color: #b91c1c;
-            overflow-wrap: anywhere;
-        }
-
-        .option {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin: 10px 0;
-        }
-
-        .option input {
-            width: auto;
-        }
-
-        .actions {
-            margin-top: 15px;
-        }
-
-        .small {
-            font-size: 13px;
-            color: #64748b;
-        }
-    </style>
+@media (max-width: 600px) {
+    body { padding: 10px; }
+    .container { padding: 16px; margin: 10px auto; }
+    .panel { padding: 14px; }
+    #question { font-size: 21px; }
+}
+</style>
 </head>
 
 <body>
 <div class="container">
-
     <h1>🤖 Smart Form Filling Assistant</h1>
     <p class="subtitle">
-        Fill online forms using your voice or keyboard.
+        Answer online form questions using your voice or keyboard.
     </p>
 
     <p id="status" role="status">Loading form fields...</p>
@@ -134,94 +104,69 @@
     <section class="panel">
         <h3>Language Settings</h3>
 
-        <label for="spokenLanguage">
-            Language you will speak
-        </label>
-
+        <label for="spokenLanguage">Choose the language you will speak</label>
         <select id="spokenLanguage">
             <option value="en-IN">English</option>
             <option value="kn-IN">Kannada</option>
-            <option value="ta-IN">Tamil</option>
             <option value="hi-IN">Hindi</option>
+            <option value="ta-IN">Tamil</option>
             <option value="te-IN">Telugu</option>
         </select>
 
-        <label for="targetLanguage">
-            Language required for your answer
-        </label>
-
+        <label for="targetLanguage">Language required by the form</label>
         <select id="targetLanguage">
+            <option value="en" selected>English</option>
             <option value="keep">Keep original answer</option>
-            <option value="en">English</option>
             <option value="kn">Kannada</option>
-            <option value="ta">Tamil</option>
             <option value="hi">Hindi</option>
+            <option value="ta">Tamil</option>
             <option value="te">Telugu</option>
         </select>
 
         <p class="small">
-            Select the language required by the destination form.
-            Names should be transliterated, not translated.
-            Email addresses, phone numbers, dates and URLs are
-            kept unchanged.
+            For English forms, keep English selected as the destination.
+            Names, phone numbers, dates, and email addresses should be
+            preserved appropriately.
         </p>
     </section>
 
     <section id="fieldPanel" class="panel">
-        <h2 id="question">Form question</h2>
-        <p id="fieldDescription"></p>
+        <p id="progressText"></p>
+        <div class="progress"><div id="progressBar"></div></div>
 
+        <h2 id="question">Form question</h2>
+        <p id="translatedQuestion"></p>
+        <p id="fieldDescription"></p>
         <div id="answerArea"></div>
 
         <div class="actions">
-            <button type="button" onclick="startListening()">
-                🎤 Speak Answer
-            </button>
-
-            <button type="button" class="secondary"
-                    onclick="repeatQuestion()">
-                🔊 Repeat Question
-            </button>
-
-            <button type="button" onclick="submitAnswer()">
-                Continue
-            </button>
+            <button type="button" onclick="startListening()">🎤 Speak Answer</button>
+            <button type="button" class="secondary" onclick="repeatQuestion()">🔊 Read Question</button>
+            <button type="button" onclick="submitAnswer()">Check Answer</button>
         </div>
     </section>
 
     <section id="confirmation" class="panel">
         <h3>Please confirm your answer</h3>
         <p id="confirmationText"></p>
-
-        <button type="button" class="success"
-                onclick="confirmAnswer()">
-            Yes, correct
-        </button>
-
-        <button type="button" class="danger"
-                onclick="editAnswer()">
-            Edit answer
-        </button>
+        <button type="button" class="success" onclick="confirmAnswer()">Yes, correct</button>
+        <button type="button" class="danger" onclick="editAnswer()">Edit answer</button>
     </section>
 
     <section id="completed" class="panel">
-        <h2>✅ Review your answers</h2>
-        <p>Check your answers before submitting the original form.</p>
-
+        <h2>✅ Review Your Answers</h2>
+        <p>Check every answer before submitting the form.</p>
         <div id="review"></div>
-
-        <button type="button" class="success"
-                onclick="submitOriginalForm()">
+        <button type="button" class="success" onclick="submitOriginalForm()">
             Fill and Submit Original Form
         </button>
     </section>
-
 </div>
 
 <script>
+
 "use strict";
 
-// These values are supplied by the Flask /open-form route.
 const formFields = {{ fields | tojson }};
 const originalFormUrl = {{ form_url | tojson }};
 const pageLanguage = {{ language | tojson }};
@@ -233,12 +178,22 @@ let recognition = null;
 let isListening = false;
 let busy = false;
 
+const $ = id => document.getElementById(id);
+
+const languageNames = {
+    "en-IN": "English",
+    "kn-IN": "Kannada",
+    "hi-IN": "Hindi",
+    "ta-IN": "Tamil",
+    "te-IN": "Telugu"
+};
+
 function setStatus(message) {
-    document.getElementById("status").textContent = message;
+    $("status").textContent = message;
 }
 
 function showError(message) {
-    document.getElementById("error").textContent = message;
+    $("error").textContent = message;
 }
 
 function clearError() {
@@ -250,37 +205,73 @@ function getLabel(field) {
 }
 
 function getKey(field) {
-    return String(
-        field.field_id || field.id || field.name || getLabel(field)
-    );
+    return String(field.field_id || field.id || field.name || getLabel(field));
 }
 
 function getType(field) {
     return String(field.type || "text").toLowerCase();
 }
 
+function getSpokenLanguageName() {
+    return languageNames[$("spokenLanguage").value] || "English";
+}
+
 function speak(message) {
-    if (!("speechSynthesis" in window)) {
-        return;
-    }
+    if (!("speechSynthesis" in window) || !message) return;
 
     window.speechSynthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(message);
-
-    utterance.lang =
-        document.getElementById("spokenLanguage").value;
-
-    utterance.rate = 0.9;
+    utterance.lang = $("spokenLanguage").value;
+    utterance.rate = 0.88;
 
     window.speechSynthesis.speak(utterance);
 }
 
-function repeatQuestion() {
-    const field = formFields[currentIndex];
+async function translateQuestion(label) {
+    const language = $("spokenLanguage").value;
+    const languageName = getSpokenLanguageName();
 
-    if (field) {
-        speak("Please provide your " + getLabel(field));
+    if (language === "en-IN") {
+        return `Please tell me your ${label}.`;
+    }
+
+    const response = await fetch("/smart-form-assistant/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            text: `Ask the user politely to provide: ${label}.`,
+            language: languageName,
+            mode: "question"
+        })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success || !result.translated) {
+        throw new Error(result.error || "Question translation failed.");
+    }
+
+    return result.translated;
+}
+
+async function repeatQuestion() {
+    const field = formFields[currentIndex];
+    if (!field) return;
+
+    clearError();
+    setStatus("Preparing the question in " + getSpokenLanguageName() + "...");
+
+    try {
+        const translated = await translateQuestion(getLabel(field));
+        $("translatedQuestion").textContent = translated;
+        speak(translated);
+        setStatus("Please answer in " + getSpokenLanguageName() + ".");
+    } catch (error) {
+        showError(
+            "Could not translate the question. Check that the Flask translation route and Groq API key are working."
+        );
+        setStatus("Question translation failed.");
     }
 }
 
@@ -288,11 +279,9 @@ function showCurrentField() {
     clearError();
 
     if (!Array.isArray(formFields) || formFields.length === 0) {
-        document.getElementById("fieldPanel").style.display = "none";
+        $("fieldPanel").style.display = "none";
         setStatus("No form fields were detected.");
-        showError(
-            "Return to the previous page and check the form URL."
-        );
+        showError("Return to the form page and check the form URL.");
         return;
     }
 
@@ -301,25 +290,29 @@ function showCurrentField() {
         return;
     }
 
-    document.getElementById("fieldPanel").style.display = "block";
-    document.getElementById("confirmation").style.display = "none";
-    document.getElementById("completed").style.display = "none";
+    $("fieldPanel").style.display = "block";
+    $("confirmation").style.display = "none";
+    $("completed").style.display = "none";
 
     const field = formFields[currentIndex];
     const label = getLabel(field);
     const type = getType(field);
 
-    document.getElementById("question").textContent =
-        "Question " + (currentIndex + 1) +
-        " of " + formFields.length;
+    $("question").textContent =
+        "Question " + (currentIndex + 1) + " of " + formFields.length;
 
-    document.getElementById("fieldDescription").textContent =
-        "Please provide: " + label;
+    $("progressText").textContent =
+        "Field " + (currentIndex + 1) + " of " + formFields.length;
 
-    const area = document.getElementById("answerArea");
+    $("progressBar").style.width =
+        ((currentIndex + 1) / formFields.length * 100) + "%";
+
+    $("fieldDescription").textContent = "Form field: " + label;
+    $("translatedQuestion").textContent = "";
+
+    const area = $("answerArea");
     area.replaceChildren();
 
-    // Restore an answer if the user returns to edit it.
     const previousAnswer = answers[getKey(field)] || "";
 
     if (
@@ -328,15 +321,13 @@ function showCurrentField() {
         field.options.length > 0
     ) {
         field.options.forEach(option => {
-            const optionText =
-                typeof option === "object"
-                    ? String(option.text || option.value || "")
-                    : String(option);
+            const optionText = typeof option === "object"
+                ? String(option.text || option.value || "")
+                : String(option);
 
-            const optionValue =
-                typeof option === "object"
-                    ? String(option.value || option.text || "")
-                    : String(option);
+            const optionValue = typeof option === "object"
+                ? String(option.value || option.text || "")
+                : String(option);
 
             const wrapper = document.createElement("label");
             wrapper.className = "option";
@@ -349,9 +340,7 @@ function showCurrentField() {
             if (type === "radio") {
                 control.checked = previousAnswer === optionValue;
             } else {
-                control.checked = previousAnswer
-                    .split(", ")
-                    .includes(optionValue);
+                control.checked = previousAnswer.split(", ").includes(optionValue);
             }
 
             const text = document.createElement("span");
@@ -371,28 +360,23 @@ function showCurrentField() {
 
         input.id = "answerInput";
 
-        const supportedInputTypes = [
-            "text", "email", "tel", "number",
-            "date", "url", "password"
+        const supportedTypes = [
+            "text", "email", "tel", "number", "date", "url", "password"
         ];
 
-        input.type = supportedInputTypes.includes(type)
-            ? type
-            : "text";
-
+        input.type = supportedTypes.includes(type) ? type : "text";
         input.placeholder = "Type or speak your answer";
         input.value = previousAnswer;
+        input.autocomplete = "off";
 
-        if (field.required) {
-            input.required = true;
-        }
+        if (field.required) input.required = true;
 
         area.append(labelElement, input);
         input.focus();
     }
 
     setStatus("Ready for field " + (currentIndex + 1) + ".");
-    speak("Please provide your " + label);
+    repeatQuestion();
 }
 
 function getAnswer() {
@@ -403,20 +387,16 @@ function getAnswer() {
         const selected = document.querySelector(
             'input[name="currentOption"]:checked'
         );
-
         return selected ? selected.value : "";
     }
 
     if (type === "checkbox") {
         return Array.from(
-            document.querySelectorAll(
-                'input[name="currentOption"]:checked'
-            )
+            document.querySelectorAll('input[name="currentOption"]:checked')
         ).map(item => item.value).join(", ");
     }
 
-    const input = document.getElementById("answerInput");
-
+    const input = $("answerInput");
     return input ? input.value.trim() : "";
 }
 
@@ -425,11 +405,7 @@ function validateAnswer(field, answer) {
     const type = getType(field);
 
     if (!answer) {
-        if (field.required) {
-            return "This field is required. Please provide an answer.";
-        }
-
-        return "";
+        return field.required ? "This field is required." : "";
     }
 
     if (type === "email" || label.includes("email")) {
@@ -443,45 +419,23 @@ function validateAnswer(field, answer) {
         /phone|mobile|contact number|telephone/.test(label)
     ) {
         const digits = answer.replace(/\D/g, "");
-
         if (digits.length < 7 || digits.length > 15) {
             return "Please check your phone number.";
         }
     }
 
-    if (type === "number") {
-        if (!Number.isFinite(Number(answer))) {
-            return "Please enter a valid number.";
-        }
-
-        if (
-            field.min !== null &&
-            field.min !== undefined &&
-            field.min !== "" &&
-            Number(answer) < Number(field.min)
-        ) {
-            return "The value is below the allowed minimum.";
-        }
-
-        if (
-            field.max !== null &&
-            field.max !== undefined &&
-            field.max !== "" &&
-            Number(answer) > Number(field.max)
-        ) {
-            return "The value is above the allowed maximum.";
-        }
+    if (type === "number" && !Number.isFinite(Number(answer))) {
+        return "Please enter a valid number.";
     }
 
     if (type === "url") {
         try {
             const parsed = new URL(answer);
-
             if (!["http:", "https:"].includes(parsed.protocol)) {
-                return "Please enter a valid HTTP or HTTPS URL.";
+                return "Please enter a valid website URL.";
             }
         } catch {
-            return "Please enter a valid URL.";
+            return "Please enter a valid website URL.";
         }
     }
 
@@ -493,8 +447,9 @@ async function submitAnswer() {
 
     clearError();
 
-    const answer = getAnswer();
     const field = formFields[currentIndex];
+    const answer = getAnswer();
+
     const validationError = validateAnswer(field, answer);
 
     if (validationError) {
@@ -503,26 +458,21 @@ async function submitAnswer() {
         return;
     }
 
-    if (!answer && !field.required) {
-        currentAnswer = "";
-        showConfirmation();
-        return;
-    }
-
-    const target =
-        document.getElementById("targetLanguage").value;
-
+    const target = $("targetLanguage").value;
     const type = getType(field);
-
-    const structuredTypes = [
-        "email", "tel", "phone", "number", "date",
-        "url", "radio", "checkbox", "select", "combobox"
-    ];
 
     currentAnswer = answer;
 
-    // Convert only ordinary text fields.
-    if (target !== "keep" && !structuredTypes.includes(type)) {
+    const protectedTypes = [
+        "email", "tel", "phone", "number", "date",
+        "url", "radio", "checkbox", "select", "combobox", "password"
+    ];
+
+    if (
+        answer &&
+        target !== "keep" &&
+        !protectedTypes.includes(type)
+    ) {
         busy = true;
         setStatus("Converting your answer...");
         showError("");
@@ -530,9 +480,7 @@ async function submitAnswer() {
         try {
             const response = await fetch("/convert-form-answer", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     answer: answer,
                     target: target,
@@ -543,25 +491,21 @@ async function submitAnswer() {
 
             const result = await response.json();
 
-            if (!response.ok || !result.success) {
-                throw new Error(
-                    result.error || "Language conversion failed."
-                );
+            if (!response.ok || result.success === false || !result.answer) {
+                throw new Error(result.error || "Answer conversion failed.");
             }
 
-            currentAnswer = String(result.answer || "").trim();
+            currentAnswer = String(result.answer).trim();
 
             if (!currentAnswer) {
                 throw new Error("The converted answer is empty.");
             }
         } catch (error) {
             showError(
-                "Conversion failed: " + error.message +
-                ". Select 'Keep original answer' to continue without conversion."
+                "Could not convert the answer: " + error.message +
+                ". Check the Flask route and translation service."
             );
-
-            setStatus("Could not convert the answer.");
-            busy = false;
+            setStatus("Answer conversion failed.");
             return;
         } finally {
             busy = false;
@@ -571,51 +515,86 @@ async function submitAnswer() {
     showConfirmation();
 }
 
-function showConfirmation() {
+async function showConfirmation() {
     const field = formFields[currentIndex];
 
-    document.getElementById("confirmationText").textContent =
-        getLabel(field) + ": " + currentAnswer;
-
-    document.getElementById("confirmation").style.display = "block";
+    $("confirmation").style.display = "block";
+    $("confirmationText").textContent =
+        getLabel(field) + ": " + (currentAnswer || "(blank)");
 
     setStatus("Please confirm your answer.");
-    speak("Your answer is " + currentAnswer + ". Is it correct?");
+
+    try {
+        const language = $("spokenLanguage").value;
+        let message = "Your answer is " + (currentAnswer || "blank") +
+                      ". Is it correct?";
+
+        if (language !== "en-IN") {
+            const response = await fetch("/smart-form-assistant/translate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    text: message,
+                    language: getSpokenLanguageName(),
+                    mode: "question"
+                })
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success && result.translated) {
+                message = result.translated;
+            }
+        }
+
+        speak(message);
+    } catch (error) {
+        // The answer remains visible for manual confirmation.
+    }
 }
 
 function confirmAnswer() {
     const field = formFields[currentIndex];
 
     answers[getKey(field)] = currentAnswer;
-
     currentIndex++;
 
     showCurrentField();
 }
 
 function editAnswer() {
-    document.getElementById("confirmation").style.display = "none";
-    setStatus("Edit your answer and press Continue.");
+    $("confirmation").style.display = "none";
+
+    const field = formFields[currentIndex];
+    showCurrentField();
+
+    const input = $("answerInput");
+
+    if (input) {
+        input.value = currentAnswer;
+        input.focus();
+    }
+
+    setStatus("Edit your answer and check it again.");
 }
 
 function showReview() {
-    document.getElementById("fieldPanel").style.display = "none";
-    document.getElementById("confirmation").style.display = "none";
-    document.getElementById("completed").style.display = "block";
+    $("fieldPanel").style.display = "none";
+    $("confirmation").style.display = "none";
+    $("completed").style.display = "block";
 
-    const review = document.getElementById("review");
+    const review = $("review");
     review.replaceChildren();
 
     formFields.forEach(field => {
-        const row = document.createElement("p");
-        const label = document.createElement("strong");
+        const row = document.createElement("div");
+        row.className = "review-row";
 
+        const label = document.createElement("strong");
         label.textContent = getLabel(field) + ": ";
 
         const value = document.createElement("span");
         value.textContent = answers[getKey(field)] || "(blank)";
-
-        row.append(label, value);
 
         const editButton = document.createElement("button");
         editButton.type = "button";
@@ -627,7 +606,7 @@ function showReview() {
             showCurrentField();
         });
 
-        row.appendChild(editButton);
+        row.append(label, value, editButton);
         review.appendChild(row);
     });
 
@@ -637,24 +616,23 @@ function showReview() {
 
 function startListening() {
     const SpeechRecognition =
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
+        window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
         showError(
-            "Voice recognition is not supported in this browser. " +
-            "Try Google Chrome or type your answer."
+            "Voice recognition is not supported here. Try Google Chrome or type your answer."
         );
         return;
     }
 
     if (isListening) return;
 
+    if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+    }
+
     recognition = new SpeechRecognition();
-
-    recognition.lang =
-        document.getElementById("spokenLanguage").value;
-
+    recognition.lang = $("spokenLanguage").value;
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
@@ -666,17 +644,15 @@ function startListening() {
     };
 
     recognition.onresult = event => {
-        const transcript =
-            event.results[0][0].transcript.trim();
-
-        const input = document.getElementById("answerInput");
+        const transcript = event.results[0][0].transcript.trim();
+        const input = $("answerInput");
 
         if (input) {
             input.value = transcript;
             setStatus("Answer received. Check it before continuing.");
         } else {
             showError(
-                "Recognized: " + transcript +
+                "Your speech was recognized as: " + transcript +
                 ". Please select the matching option manually."
             );
         }
@@ -687,8 +663,6 @@ function startListening() {
             "Voice recognition error: " + event.error +
             ". You can type your answer instead."
         );
-
-        setStatus("Voice recognition stopped.");
     };
 
     recognition.onend = () => {
@@ -699,17 +673,17 @@ function startListening() {
         recognition.start();
     } catch (error) {
         isListening = false;
-        showError("Could not start voice recognition. Try again.");
+        showError("Could not start voice recognition. Please try again.");
     }
 }
 
 async function submitOriginalForm() {
     clearError();
 
-    const missing = formFields.find(field => {
-        return field.required &&
-            !String(answers[getKey(field)] || "").trim();
-    });
+    const missing = formFields.find(field =>
+        field.required &&
+        !String(answers[getKey(field)] || "").trim()
+    );
 
     if (missing) {
         showError("Please answer the required field: " + getLabel(missing));
@@ -727,26 +701,23 @@ async function submitOriginalForm() {
     try {
         setStatus("Filling the original form...");
 
-        // The Flask route must accept this payload and fill the
-        // browser page that was opened by /open-form.
+        const payload = {
+            form_url: originalFormUrl,
+            fields: formFields,
+            answers: answers
+        };
+
         const fillResponse = await fetch("/download-form", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                form_url: originalFormUrl,
-                fields: formFields,
-                answers: answers
-            })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
         });
 
         const fillResult = await fillResponse.json();
 
-        if (!fillResponse.ok || !fillResult.success) {
+        if (!fillResponse.ok || fillResult.success === false) {
             throw new Error(
-                fillResult.error ||
-                fillResult.message ||
+                fillResult.error || fillResult.message ||
                 "The server could not fill the form."
             );
         }
@@ -755,35 +726,24 @@ async function submitOriginalForm() {
 
         const submitResponse = await fetch("/submit-form", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                form_url: originalFormUrl,
-                fields: formFields,
-                answers: answers
-            })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
         });
 
         const submitResult = await submitResponse.json();
 
-        if (!submitResponse.ok || !submitResult.success) {
+        if (!submitResponse.ok || submitResult.success === false) {
             throw new Error(
-                submitResult.error ||
-                submitResult.message ||
+                submitResult.error || submitResult.message ||
                 "The website did not confirm submission."
             );
         }
 
-        setStatus(
-            submitResult.message ||
-            "The server reported that the form was submitted."
-        );
+        const message =
+            submitResult.message || "The server reported successful submission.";
 
-        alert(
-            submitResult.message ||
-            "The server reported successful submission."
-        );
+        setStatus(message);
+        alert(message);
 
     } catch (error) {
         setStatus("The form could not be submitted.");
@@ -793,25 +753,29 @@ async function submitOriginalForm() {
     }
 }
 
-document.getElementById("spokenLanguage")
-    .addEventListener("change", () => {
-        if (recognition && isListening) {
-            try {
-                recognition.abort();
-            } catch (error) {
-                // Ignore an already-stopped recognition session.
-            }
+$("spokenLanguage").addEventListener("change", () => {
+    if (recognition && isListening) {
+        try {
+            recognition.abort();
+        } catch (error) {
+            // Recognition may already have stopped.
         }
+    }
 
-        recognition = null;
-        isListening = false;
+    recognition = null;
+    isListening = false;
 
-        if ("speechSynthesis" in window) {
-            window.speechSynthesis.cancel();
-        }
-    });
+    if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+    }
+
+    if (Array.isArray(formFields) && formFields.length > 0) {
+        repeatQuestion();
+    }
+});
 
 window.addEventListener("load", showCurrentField);
+
 </script>
 </body>
 </html>

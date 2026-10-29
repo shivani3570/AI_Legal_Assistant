@@ -1921,7 +1921,6 @@ def open_form():
             language=language,
             fields=result["fields"]
         )
-
     except Exception as e:
 
         print()
