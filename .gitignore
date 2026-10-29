@@ -8,3 +8,7 @@ venv/
 uploads/
 templates/uploads/
 .vscode/
+static/legal_explanation_*.mp3
+kannada_test.mp3
+app_BACKUP*.py
+test_gemini.py

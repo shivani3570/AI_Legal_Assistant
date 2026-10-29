@@ -1,16 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Legal Document Analysis | AI Legal Assistant</title>
+    <title>AI Legal Assistant | Document Explanation</title>
 
     <style>
-
         * {
             box-sizing: border-box;
             margin: 0;
@@ -19,235 +15,114 @@
 
         body {
             font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #eef2ff, #f8fafc, #ecfeff);
+            color: #1e293b;
             min-height: 100vh;
-            background:
-                radial-gradient(circle at 10% 10%, rgba(99,102,241,0.18), transparent 30%),
-                radial-gradient(circle at 90% 20%, rgba(14,165,233,0.15), transparent 30%),
-                linear-gradient(135deg, #f8fafc, #eef2ff);
-            color: #172033;
         }
 
-        /* =========================
-           HEADER
-        ========================= */
-
-        .header {
-            padding: 35px 20px 15px;
+        header {
             text-align: center;
+            padding: 35px 20px 20px;
         }
 
         .logo {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 17px;
+            display: inline-block;
+            padding: 10px 18px;
+            background: #e0e7ff;
+            color: #4338ca;
+            border-radius: 30px;
             font-weight: 700;
-            color: #4f46e5;
-            margin-bottom: 15px;
-        }
-
-        .logo-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            box-shadow: 0 8px 20px rgba(79,70,229,0.25);
+            margin-bottom: 18px;
         }
 
         h1 {
-            font-size: 42px;
-            font-weight: 800;
-            letter-spacing: -1px;
-            margin-bottom: 10px;
+            font-size: clamp(28px, 4vw, 42px);
+            margin-bottom: 12px;
+            color: #172554;
         }
 
         .subtitle {
             color: #64748b;
-            font-size: 17px;
+            line-height: 1.6;
         }
-
-        /* =========================
-           MAIN
-        ========================= */
 
         .container {
-            width: min(1150px, 92%);
-            margin: 30px auto 60px;
+            width: min(1100px, 94%);
+            margin: 25px auto 60px;
         }
-
-        /* =========================
-           CARDS
-        ========================= */
 
         .card {
-            background: rgba(255,255,255,0.88);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.9);
-            border-radius: 22px;
-            padding: 30px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 28px;
             margin-bottom: 24px;
-            box-shadow:
-                0 15px 45px rgba(15,23,42,0.08),
-                0 2px 8px rgba(15,23,42,0.04);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
         }
 
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow:
-                0 20px 55px rgba(15,23,42,0.11),
-                0 4px 12px rgba(15,23,42,0.05);
-        }
-
-        /* =========================
-           CARD HEADER
-        ========================= */
-
-        .card-header {
+        .card-heading {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 14px;
             margin-bottom: 22px;
         }
 
-        .card-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 15px;
+        .icon {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
             background: #eef2ff;
-        }
-
-        .card-title {
             font-size: 24px;
-            font-weight: 750;
+            flex-shrink: 0;
         }
 
-        .card-description {
-            color: #64748b;
+        .card h2 {
+            font-size: 22px;
+            color: #1e293b;
+        }
+
+        .description {
             font-size: 14px;
-            margin-top: 4px;
+            color: #64748b;
+            margin-top: 5px;
+            line-height: 1.5;
         }
-
-        /* =========================
-           LANGUAGE
-        ========================= */
 
         .language-box {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 18px 20px;
+            align-items: center;
+            gap: 15px;
+            padding: 18px;
+            border-radius: 12px;
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            border-radius: 14px;
-        }
-
-        .language-label {
-            color: #64748b;
-            font-size: 14px;
         }
 
         .language-value {
-            font-weight: 700;
             color: #4f46e5;
+            font-weight: 700;
             text-transform: capitalize;
         }
 
-        /* =========================
-           AI EXPLANATION
-        ========================= */
-
-        .ai-card {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .ai-card::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(
-                90deg,
-                #4f46e5,
-                #7c3aed,
-                #06b6d4
-            );
-        }
-
-        .ai-content {
+        .explanation {
             padding: 22px;
-            background: linear-gradient(
-                135deg,
-                #f5f3ff,
-                #eef2ff
-            );
-            border: 1px solid #e0e7ff;
-            border-radius: 16px;
-            line-height: 1.8;
-            color: #334155;
+            border-radius: 14px;
+            background: #f5f3ff;
+            border: 1px solid #ddd6fe;
+            line-height: 1.9;
             white-space: pre-wrap;
+            overflow-wrap: anywhere;
         }
 
-        /* =========================
-           DOCUMENT TEXT
-        ========================= */
-
-        .document-content {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 24px;
-            max-height: 430px;
-            overflow-y: auto;
-            line-height: 1.8;
-            color: #334155;
-            white-space: pre-wrap;
-            font-size: 15px;
-        }
-
-        .document-content::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .document-content::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 10px;
-        }
-
-        .document-content::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-
-        /* =========================
-           LISTEN CONTROLS
-        ========================= */
-
-        .listen-section {
-            margin-top: 22px;
-            padding: 20px;
-            background: #f8fafc;
-            border-radius: 16px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .listen-title {
+        .section-label {
             font-size: 14px;
             font-weight: 700;
             color: #475569;
-            margin-bottom: 13px;
+            margin: 20px 0 12px;
         }
 
         .button-row {
@@ -258,589 +133,968 @@
 
         button {
             border: none;
+            border-radius: 10px;
+            padding: 12px 17px;
             cursor: pointer;
-            border-radius: 11px;
-            padding: 12px 18px;
             font-size: 14px;
             font-weight: 650;
-            transition: all 0.2s ease;
+            transition: 0.2s;
         }
 
         button:hover {
-            transform: translateY(-2px);
+            filter: brightness(0.95);
         }
 
-        .play {
+        button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .primary {
             background: #4f46e5;
             color: white;
-            box-shadow: 0 7px 18px rgba(79,70,229,0.22);
         }
 
-        .pause {
+        .danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .warning {
             background: #f59e0b;
             color: white;
         }
 
-        .resume {
+        .secondary {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .success {
+            background: #059669;
+            color: white;
+        }
+
+        /* Real-time conversation area */
+
+        .conversation-card {
+            border-top: 5px solid #6366f1;
+        }
+
+        .assistant-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 17px;
+            margin-bottom: 20px;
+            background: #eef2ff;
+            color: #3730a3;
+            border-radius: 12px;
+            line-height: 1.6;
+        }
+
+        .status-dot {
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: #818cf8;
+            flex-shrink: 0;
+        }
+
+        .status-dot.active {
             background: #10b981;
-            color: white;
+            box-shadow: 0 0 0 5px #d1fae5;
         }
 
-        .replay {
-            background: #0ea5e9;
-            color: white;
+        .conversation-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        .stop {
-            background: #ef4444;
-            color: white;
+        .conversation-window {
+            min-height: 180px;
+            max-height: 430px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding: 18px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
         }
 
-        /* =========================
-           STATUS
-        ========================= */
-
-        .status {
+        .empty-message {
+            color: #64748b;
             text-align: center;
-            margin-top: 15px;
+            margin: auto;
+            padding: 25px 10px;
+            line-height: 1.7;
+        }
+
+        .message {
+            max-width: 88%;
+            padding: 14px 16px;
+            border-radius: 14px;
+            line-height: 1.75;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            background: #e0e7ff;
+            color: #312e81;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+            background: white;
+            color: #334155;
+            border: 1px solid #e2e8f0;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.7;
+        }
+
+        .typing {
+            display: none;
             color: #64748b;
             font-size: 13px;
-            min-height: 20px;
+            padding: 12px 3px;
         }
 
-        /* =========================
-           FOOTER
-        ========================= */
+        .typing.visible {
+            display: block;
+        }
 
-        .footer {
+        .text-fallback {
+            margin-top: 20px;
+        }
+
+        .text-fallback label {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 9px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-row input {
+            flex: 1;
+            min-width: 0;
+            padding: 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .input-row input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px #e0e7ff;
+        }
+
+        .hint {
+            margin-top: 12px;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .document-text {
+            max-height: 430px;
+            overflow-y: auto;
+            padding: 22px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            line-height: 1.8;
+            font-size: 14px;
+        }
+
+        footer {
             text-align: center;
-            color: #94a3b8;
+            padding: 25px;
+            color: #64748b;
             font-size: 13px;
-            padding: 10px 20px 35px;
         }
 
-        /* =========================
-           MOBILE
-        ========================= */
-
-        @media (max-width: 700px) {
-
-            h1 {
-                font-size: 31px;
-            }
-
-            .subtitle {
-                font-size: 14px;
-            }
-
-            .container {
-                width: 94%;
-                margin-top: 20px;
-            }
-
+        @media (max-width: 650px) {
             .card {
-                padding: 20px;
-                border-radius: 18px;
+                padding: 19px;
             }
 
-            .card-title {
-                font-size: 20px;
+            .card h2 {
+                font-size: 19px;
             }
 
             .language-box {
-                flex-direction: column;
                 align-items: flex-start;
-                gap: 7px;
-            }
-
-            .button-row {
                 flex-direction: column;
             }
 
-            button {
+            .input-row {
+                flex-direction: column;
+            }
+
+            .button-row button,
+            .conversation-buttons button,
+            .input-row button {
                 width: 100%;
             }
 
+            .message {
+                max-width: 96%;
+            }
         }
-
     </style>
-
 </head>
-
 
 <body>
 
+<header>
+    <div class="logo">⚖️ AI Legal Assistant</div>
 
-<!-- =========================
-     HEADER
-========================= -->
-
-<header class="header">
-
-    <div class="logo">
-
-        <div class="logo-icon">
-            ⚖️
-        </div>
-
-        AI Legal Assistant
-
-    </div>
-
-    <h1>
-        Legal Document Analysis
-    </h1>
+    <h1>Legal Document Explainer</h1>
 
     <p class="subtitle">
-        Understand your legal document with your AI-powered assistant
+        Understand your document and discuss it naturally with your AI assistant.
     </p>
-
 </header>
-
-
-<!-- =========================
-     MAIN
-========================= -->
 
 <main class="container">
 
+    <!-- Preloaded backend explanation audio element -->
+    <audio id="preloadedExplanationAudio" preload="auto">
+        {% if audio_url %}
+        <source src="{{ audio_url }}" type="audio/mpeg">
+        {% endif %}
+    </audio>
 
-    <!-- DOCUMENT INFORMATION -->
+    <!-- Document language -->
 
     <section class="card">
-
-        <div class="card-header">
-
-            <div class="card-icon">
-                📄
-            </div>
+        <div class="card-heading">
+            <div class="icon">🌐</div>
 
             <div>
-
-                <div class="card-title">
-                    Document Information
-                </div>
-
-                <div class="card-description">
-                    Details about your uploaded document
-                </div>
-
+                <h2>Document Information</h2>
+                <p class="description">
+                    Your selected language for the explanation and conversation.
+                </p>
             </div>
-
         </div>
-
 
         <div class="language-box">
-
-            <div class="language-label">
-                Selected Language
-            </div>
-
-            <div class="language-value">
-                {{ language }}
-            </div>
-
+            <span>Selected Language</span>
+            <span class="language-value">{{ language }}</span>
         </div>
-
     </section>
 
-
-    <!-- AI EXPLANATION -->
-
-    <section class="card ai-card">
-
-        <div class="card-header">
-
-            <div class="card-icon">
-                🤖
-            </div>
-
-            <div>
-
-                <div class="card-title">
-                    AI Explanation
-                </div>
-
-                <div class="card-description">
-                    Simplified explanation of your legal document
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="ai-content" id="aiExplanation">
-
-            {{ explanation }}
-
-        </div>
-
-
-        <div class="listen-section">
-
-            <div class="listen-title">
-                🔊 Listen to AI Explanation
-            </div>
-
-            <div class="button-row">
-
-                <button
-                    class="play"
-                    onclick="playExplanation()"
-                >
-                    ▶ Play
-                </button>
-
-                <button
-                    class="pause"
-                    onclick="pauseSpeech()"
-                >
-                    ⏸ Pause
-                </button>
-
-                <button
-                    class="resume"
-                    onclick="resumeSpeech()"
-                >
-                    ▶ Resume
-                </button>
-
-                <button
-                    class="replay"
-                    onclick="replayExplanation()"
-                >
-                    🔄 Replay
-                </button>
-
-                <button
-                    class="stop"
-                    onclick="stopSpeech()"
-                >
-                    ⏹ Stop
-                </button>
-
-            </div>
-
-            <div
-                class="status"
-                id="speechStatus"
-            >
-                Ready to read the explanation aloud.
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- EXTRACTED DOCUMENT -->
+    <!-- AI explanation -->
 
     <section class="card">
-
-        <div class="card-header">
-
-            <div class="card-icon">
-                📑
-            </div>
+        <div class="card-heading">
+            <div class="icon">🤖</div>
 
             <div>
-
-                <div class="card-title">
-                    Extracted Document Text
-                </div>
-
-                <div class="card-description">
-                    Text extracted from your uploaded document
-                </div>
-
+                <h2>AI Explanation</h2>
+                <p class="description">
+                    A simplified explanation generated from your uploaded document.
+                </p>
             </div>
-
         </div>
 
+        <div class="explanation" id="aiExplanation">{{ explanation }}</div>
 
-        <div
-            class="document-content"
-            id="documentText"
-        >
-            {{ text }}
+        <p class="section-label">Listen to the explanation</p>
+
+        <div class="button-row">
+            <button class="primary" type="button"
+                onclick="speakText(document.getElementById('aiExplanation').innerText, true)">
+                ▶ Listen
+            </button>
+
+            <button class="warning" type="button" onclick="pauseSpeech()">
+                ⏸ Pause
+            </button>
+
+            <button class="success" type="button" onclick="resumeSpeech()">
+                ▶ Resume
+            </button>
+
+            <button class="danger" type="button" onclick="stopSpeech()">
+                ⏹ Stop
+            </button>
+        </div>
+    </section>
+
+    <!-- Real-time voice conversation -->
+
+    <section class="card conversation-card">
+
+        <div class="card-heading">
+            <div class="icon">🎙️</div>
+
+            <div>
+                <h2>Talk with Your AI Legal Assistant</h2>
+
+                <p class="description">
+                    Speak naturally about your document. The assistant will respond
+                    aloud and continue the conversation.
+                </p>
+            </div>
         </div>
 
-
-        <div class="listen-section">
-
-            <div class="listen-title">
-                🔊 Listen to Document
-            </div>
-
-            <div class="button-row">
-
-                <button
-                    class="play"
-                    onclick="playDocument()"
-                >
-                    ▶ Play
-                </button>
-
-                <button
-                    class="pause"
-                    onclick="pauseSpeech()"
-                >
-                    ⏸ Pause
-                </button>
-
-                <button
-                    class="resume"
-                    onclick="resumeSpeech()"
-                >
-                    ▶ Resume
-                </button>
-
-                <button
-                    class="replay"
-                    onclick="replayDocument()"
-                >
-                    🔄 Replay
-                </button>
-
-                <button
-                    class="stop"
-                    onclick="stopSpeech()"
-                >
-                    ⏹ Stop
-                </button>
-
-            </div>
-
+        <div class="assistant-status" role="status" aria-live="polite">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">
+                Ready. Press Start Conversation and allow microphone access.
+            </span>
         </div>
+
+        <div class="conversation-buttons">
+            <button class="primary" id="startButton" type="button">
+                🎙️ Start Conversation
+            </button>
+
+            <button class="danger" id="endButton" type="button" disabled>
+                ⏹ End Conversation
+            </button>
+
+            <button class="warning" id="stopSpeakingButton" type="button">
+                🔇 Stop Speaking
+            </button>
+        </div>
+
+        <div class="conversation-window" id="conversationWindow" aria-live="polite">
+            <div class="empty-message" id="emptyMessage">
+                Your conversation will appear here.<br>
+                <strong>Press Start Conversation to begin.</strong>
+            </div>
+        </div>
+
+        <div class="typing" id="typingIndicator">
+            🤖 Your assistant is preparing a response...
+        </div>
+
+        <form class="text-fallback" id="messageForm">
+            <label for="messageInput">Or type your message</label>
+
+            <div class="input-row">
+                <input
+                    type="text"
+                    id="messageInput"
+                    maxlength="2000"
+                    placeholder="For example: Explain the payment clause..."
+                    autocomplete="off"
+                >
+
+                <button class="primary" type="submit">Send</button>
+            </div>
+        </form>
+
+        <p class="hint">
+            For voice interaction, use Microsoft Edge or Google Chrome and allow
+            microphone access. The assistant uses the language selected on the
+            upload page.
+        </p>
 
     </section>
 
+    <!-- Original extracted document text -->
+
+    <section class="card">
+        <div class="card-heading">
+            <div class="icon">📄</div>
+
+            <div>
+                <h2>Extracted Document Text</h2>
+                <p class="description">
+                    Text extracted from your uploaded document.
+                </p>
+            </div>
+        </div>
+
+        <div class="document-text" id="documentText">{{ text }}</div>
+
+        <p class="section-label">Listen to extracted text</p>
+
+        <div class="button-row">
+            <button class="primary" type="button"
+                onclick="speakText(document.getElementById('documentText').innerText, false)">
+                ▶ Listen
+            </button>
+
+            <button class="warning" type="button" onclick="pauseSpeech()">
+                ⏸ Pause
+            </button>
+
+            <button class="success" type="button" onclick="resumeSpeech()">
+                ▶ Resume
+            </button>
+
+            <button class="danger" type="button" onclick="stopSpeech()">
+                ⏹ Stop
+            </button>
+        </div>
+    </section>
 
 </main>
 
-
-<!-- =========================
-     FOOTER
-========================= -->
-
-<footer class="footer">
-
-    AI Legal Assistant • Document Analysis
-
+<footer>
+    AI Legal Assistant | Legal information explained in simple language
 </footer>
 
-
 <script>
+"use strict";
 
-    /* =========================================
-       TEXT TO SPEECH
-    ========================================= */
+/* Selected language from Flask */
 
-    let speech = null;
+const selectedLanguage =
+    String({{ language|tojson }} || "english").toLowerCase().trim();
 
-    let currentText = "";
+const speechLocales = {
+    english: "en-IN",
+    hindi: "hi-IN",
+    kannada: "kn-IN",
+    tamil: "ta-IN",
+    telugu: "te-IN",
+    malayalam: "ml-IN"
+};
+
+const speechLocale = speechLocales[selectedLanguage] || "en-IN";
+
+const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+let recognition = null;
+let conversationActive = false;
+let assistantSpeaking = false;
+let requestInProgress = false;
+let restartTimer = null;
+
+/* Edge TTS audio playback variables */
+
+let explanationAudio = null;
+let audioRequestId = 0;
+const preloadedAudioEl = document.getElementById("preloadedExplanationAudio");
+
+const startButton = document.getElementById("startButton");
+const endButton = document.getElementById("endButton");
+const stopSpeakingButton = document.getElementById("stopSpeakingButton");
+const statusText = document.getElementById("statusText");
+const statusDot = document.getElementById("statusDot");
+const conversationWindow = document.getElementById("conversationWindow");
+const typingIndicator = document.getElementById("typingIndicator");
+const messageForm = document.getElementById("messageForm");
+const messageInput = document.getElementById("messageInput");
 
 
-    function getLanguageCode() {
+function cleanSpeechText(value) {
+    if (!value) return "";
+    return String(value)
+        .replace(/```.*?```/gs, " ")
+        .replace(/`([^`]*)`/g, "$1")
+        .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+        .replace(/[*#_~]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+}
 
-        const language =
-            "{{ language }}".toLowerCase();
 
-        const codes = {
+function setStatus(message, active = false) {
+    statusText.textContent = message;
+    statusDot.classList.toggle("active", active);
+}
 
-            english: "en-IN",
-            hindi: "hi-IN",
-            kannada: "kn-IN",
-            tamil: "ta-IN",
-            telugu: "te-IN",
-            malayalam: "ml-IN"
 
-        };
+function addMessage(role, message) {
+    const emptyMessage = document.getElementById("emptyMessage");
 
-        return codes[language] || "en-IN";
-
+    if (emptyMessage) {
+        emptyMessage.remove();
     }
 
+    const bubble = document.createElement("div");
+    bubble.className = "message " + role;
 
-    function speak(text) {
+    const label = document.createElement("span");
+    label.className = "message-label";
+    label.textContent = role === "user" ? "You" : "AI Assistant";
 
-        if (!("speechSynthesis" in window)) {
+    const body = document.createElement("div");
+    body.textContent = message;
 
-            document.getElementById(
-                "speechStatus"
-            ).textContent =
-                "Speech synthesis is not supported in this browser.";
+    bubble.appendChild(label);
+    bubble.appendChild(body);
 
+    conversationWindow.appendChild(bubble);
+    conversationWindow.scrollTop = conversationWindow.scrollHeight;
+
+    return bubble;
+}
+
+
+function updateButtons() {
+    startButton.disabled = conversationActive;
+    endButton.disabled = !conversationActive;
+}
+
+
+function stopRecognition() {
+    if (recognition) {
+        try {
+            recognition.stop();
+        } catch (error) {
+            // Recognition may already be stopped.
+        }
+    }
+}
+
+
+/*
+ * Play the explanation or extracted document using backend Edge TTS.
+ */
+
+async function speakText(message, isExplanation = false) {
+    message = cleanSpeechText(message);
+
+    if (!message) {
+        setStatus("There is no text available to read.");
+        return;
+    }
+
+    stopSpeech();
+
+    const requestId = ++audioRequestId;
+
+    // Use pre-generated backend audio file if available
+    const hasPreloaded = preloadedAudioEl && preloadedAudioEl.querySelector("source") && preloadedAudioEl.querySelector("source").src;
+
+    if (isExplanation && hasPreloaded) {
+        explanationAudio = preloadedAudioEl;
+        explanationAudio.currentTime = 0;
+
+        explanationAudio.onplay = () => {
+            if (requestId === audioRequestId) {
+                setStatus("Playing explanation in " + selectedLanguage + "...", true);
+            }
+        };
+
+        explanationAudio.onended = () => {
+            if (requestId === audioRequestId) {
+                setStatus("Audio playback completed.");
+                explanationAudio = null;
+            }
+        };
+
+        explanationAudio.onerror = () => {
+            // Fallback to fetch if preloaded file has an issue
+            fetchAndPlayAudio(message, requestId);
+        };
+
+        try {
+            await explanationAudio.play();
             return;
+        } catch (err) {
+            console.warn("Preloaded audio play error:", err);
+        }
+    }
 
+    await fetchAndPlayAudio(message, requestId);
+}
+
+
+async function fetchAndPlayAudio(message, requestId) {
+    setStatus("Generating speech in " + selectedLanguage + "...", true);
+
+    try {
+        const response = await fetch("/generate-audio", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                text: message,
+                language: selectedLanguage
+            })
+        });
+
+        const data = await response.json();
+
+        if (requestId !== audioRequestId) {
+            return;
         }
 
+        if (!response.ok || !data.success || !data.audio_url) {
+            throw new Error(data.error || "Unable to generate audio.");
+        }
 
-        window.speechSynthesis.cancel();
+        explanationAudio = new Audio(data.audio_url);
 
-
-        currentText = text;
-
-
-        speech =
-            new SpeechSynthesisUtterance(
-                text
-            );
-
-
-        speech.lang =
-            getLanguageCode();
-
-
-        speech.rate = 0.9;
-
-        speech.pitch = 1;
-
-
-        speech.onstart = function() {
-
-            document.getElementById(
-                "speechStatus"
-            ).textContent =
-                "🔊 Reading aloud...";
-
+        explanationAudio.onplay = () => {
+            if (requestId === audioRequestId) {
+                setStatus("Playing audio in " + selectedLanguage + ".", true);
+            }
         };
 
-
-        speech.onend = function() {
-
-            document.getElementById(
-                "speechStatus"
-            ).textContent =
-                "✅ Reading completed.";
-
+        explanationAudio.onended = () => {
+            if (requestId === audioRequestId) {
+                setStatus("Audio playback completed.");
+                explanationAudio = null;
+            }
         };
 
+        explanationAudio.onerror = () => {
+            if (requestId === audioRequestId) {
+                setStatus("Unable to play the audio. Please try again.");
+                explanationAudio = null;
+            }
+        };
 
-        window.speechSynthesis.speak(
-            speech
-        );
+        await explanationAudio.play();
 
+    } catch (error) {
+        if (requestId === audioRequestId) {
+            console.error("Audio playback error:", error);
+            setStatus("Speech failed: " + (error.message || "Check the Flask terminal."));
+        }
+    }
+}
+
+
+function pauseSpeech() {
+    if (explanationAudio && !explanationAudio.paused) {
+        explanationAudio.pause();
+        setStatus("Audio paused.");
+    }
+}
+
+
+function resumeSpeech() {
+    if (explanationAudio && explanationAudio.paused) {
+        explanationAudio.play().catch(error => {
+            console.error("Audio resume error:", error);
+            setStatus("Unable to resume audio. Press Listen to try again.");
+        });
+    }
+}
+
+
+function stopSpeech() {
+    audioRequestId++;
+
+    if (explanationAudio) {
+        explanationAudio.pause();
+        try {
+            explanationAudio.currentTime = 0;
+        } catch (error) {
+            // Ignore if audio has not loaded
+        }
+        explanationAudio.onended = null;
+        explanationAudio.onerror = null;
+        explanationAudio = null;
     }
 
+    assistantSpeaking = false;
+}
 
-    /* =========================================
-       AI EXPLANATION
-    ========================================= */
 
-    function playExplanation() {
-
-        const text =
-            document.getElementById(
-                "aiExplanation"
-            ).innerText;
-
-        speak(text);
-
+function scheduleListening() {
+    if (!conversationActive ||
+        assistantSpeaking ||
+        requestInProgress ||
+        !recognition) {
+        return;
     }
 
+    clearTimeout(restartTimer);
 
-    function replayExplanation() {
-
-        playExplanation();
-
-    }
-
-
-    /* =========================================
-       DOCUMENT
-    ========================================= */
-
-    function playDocument() {
-
-        const text =
-            document.getElementById(
-                "documentText"
-            ).innerText;
-
-        speak(text);
-
-    }
-
-
-    function replayDocument() {
-
-        playDocument();
-
-    }
-
-
-    /* =========================================
-       PAUSE
-    ========================================= */
-
-    function pauseSpeech() {
-
-        if (
-            "speechSynthesis" in window &&
-            window.speechSynthesis.speaking
-        ) {
-
-            window.speechSynthesis.pause();
-
-            document.getElementById(
-                "speechStatus"
-            ).textContent =
-                "⏸ Speech paused.";
-
+    restartTimer = setTimeout(() => {
+        if (!conversationActive ||
+            assistantSpeaking ||
+            requestInProgress) {
+            return;
         }
 
+        try {
+            recognition.start();
+        } catch (error) {
+            // Recognition may already be active
+        }
+    }, 600);
+}
+
+
+/*
+ * Speaks the assistant's reply using Edge TTS in the selected native language.
+ */
+
+async function speakAssistantReply(message) {
+    message = cleanSpeechText(message);
+    if (!message) return;
+
+    stopRecognition();
+    stopSpeech();
+
+    assistantSpeaking = true;
+    setStatus("The assistant is speaking in " + selectedLanguage + "...", true);
+
+    try {
+        const response = await fetch("/generate-audio", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                text: message,
+                language: selectedLanguage
+            })
+        });
+
+        const data = await response.json();
+
+        if (data && data.success && data.audio_url) {
+            explanationAudio = new Audio(data.audio_url);
+
+            await new Promise(resolve => {
+                explanationAudio.onended = () => {
+                    explanationAudio = null;
+                    resolve();
+                };
+                explanationAudio.onerror = () => {
+                    explanationAudio = null;
+                    resolve();
+                };
+                explanationAudio.play().catch(() => resolve());
+            });
+        }
+    } catch (err) {
+        console.error("Assistant speech error:", err);
+    } finally {
+        assistantSpeaking = false;
+        if (conversationActive) {
+            setStatus("Listening for your next message...", true);
+            scheduleListening();
+        }
+    }
+}
+
+
+async function sendMessage(message) {
+    message = (message || "").trim();
+
+    if (!message || requestInProgress) {
+        return;
     }
 
+    addMessage("user", message);
 
-    /* =========================================
-       RESUME
-    ========================================= */
+    requestInProgress = true;
+    typingIndicator.classList.add("visible");
+    setStatus("Thinking about what you said...", true);
 
-    function resumeSpeech() {
+    stopRecognition();
 
-        if (
-            "speechSynthesis" in window
-        ) {
+    try {
+        const response = await fetch("/document-conversation", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                message: message
+            })
+        });
 
-            window.speechSynthesis.resume();
+        const data = await response.json();
 
-            document.getElementById(
-                "speechStatus"
-            ).textContent =
-                "▶ Speech resumed.";
-
+        if (!response.ok) {
+            throw new Error(data.reply || "The assistant could not respond.");
         }
 
+        const reply = data.reply || "Sorry, I could not prepare a response. Please try again.";
+
+        addMessage("ai", reply);
+
+        typingIndicator.classList.remove("visible");
+        requestInProgress = false;
+
+        await speakAssistantReply(reply);
+
+    } catch (error) {
+        typingIndicator.classList.remove("visible");
+        requestInProgress = false;
+
+        const errorMessage = error.message || "Unable to connect to the AI service. Please try again.";
+        addMessage("ai", errorMessage);
+        setStatus(errorMessage, false);
+
+        if (conversationActive) {
+            scheduleListening();
+        }
+    }
+}
+
+
+function initializeRecognition() {
+    if (!SpeechRecognition) {
+        setStatus("Voice recognition is unavailable in this browser. You can type below.");
+        return false;
     }
 
+    recognition = new SpeechRecognition();
 
-    /* =========================================
-       STOP
-    ========================================= */
+    recognition.lang = speechLocale;
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
 
-    function stopSpeech() {
+    let finalTranscript = "";
 
-        if (
-            "speechSynthesis" in window
-        ) {
+    recognition.onstart = () => {
+        if (conversationActive && !assistantSpeaking) {
+            setStatus("Listening... Speak naturally in " + selectedLanguage + ".", true);
+        }
+    };
 
-            window.speechSynthesis.cancel();
+    recognition.onresult = event => {
+        let interimTranscript = "";
 
-            document.getElementById(
-                "speechStatus"
-            ).textContent =
-                "⏹ Speech stopped.";
-
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcriptPart = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+                finalTranscript += transcriptPart;
+            } else {
+                interimTranscript += transcriptPart;
+            }
         }
 
+        if (interimTranscript) {
+            setStatus("I hear: " + interimTranscript, true);
+        }
+
+        if (finalTranscript.trim()) {
+            const message = finalTranscript.trim();
+            finalTranscript = "";
+            sendMessage(message);
+        }
+    };
+
+    recognition.onerror = event => {
+        if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+            conversationActive = false;
+            updateButtons();
+            setStatus("Microphone permission denied. Allow microphone access and try again.");
+        } else if (event.error !== "no-speech" && event.error !== "aborted") {
+            setStatus("Microphone error: " + event.error + ". You can type your message instead.");
+        }
+    };
+
+    recognition.onend = () => {
+        if (conversationActive && !assistantSpeaking && !requestInProgress) {
+            scheduleListening();
+        }
+    };
+
+    return true;
+}
+
+
+startButton.addEventListener("click", async () => {
+    if (!SpeechRecognition) {
+        setStatus("This browser does not support voice recognition. Use Edge or Chrome, or type your message below.");
+        return;
     }
 
+    conversationActive = true;
+    updateButtons();
 
+    if (!recognition) {
+        const initialized = initializeRecognition();
+        if (!initialized) {
+            conversationActive = false;
+            updateButtons();
+            return;
+        }
+    }
+
+    if (!conversationWindow.querySelector(".message")) {
+        const greetings = {
+            kannada: "ನಮಸ್ಕಾರ! ನಿಮ್ಮ ಕಾನೂನು ದಾಖಲೆಯನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ನಾನು ಸಿದ್ಧನಾಗಿದ್ದೇನೆ. ನೀವು ಯಾವುದೇ ಪ್ರಶ್ನೆಗಳನ್ನು ಕೇಳಬಹುದು.",
+            hindi: "नमस्ते! मैं आपके कानूनी दस्तावेज़ को समझने में आपकी मदद करने के लिए तैयार हूँ। आप कोई भी सवाल पूछ सकते हैं।",
+            tamil: "வணக்கம்! உங்கள் சட்ட ஆவணத்தை புரிந்து கொள்ள நான் தயாராக இருக்கிறேன். நீங்கள் ஏதேனும் கேள்விகள் கேட்கலாம்.",
+            telugu: "నమస్కారం! మీ చట్టపరమైన పత్రాన్ని అర్థం చేసుకోవడంలో మీకు సహాయం చేయడానికి నేను సిద్ధంగా ఉన్నాను. మీరు ఏదైనా ప్రశ్న అడగవచ్చు.",
+            malayalam: "നമസ്കാരം! നിങ്ങളുടെ നിയമപരമായ രേഖ മനസ്സിലാക്കാൻ സഹായിക്കാൻ ഞാൻ തയ്യാറാണ്. നിങ്ങൾക്ക് എന്തെങ്കിലും ചോദിക്കാം.",
+            english: "Hello! I am ready to help you understand your uploaded legal document. What would you like to understand?"
+        };
+
+        const greeting = greetings[selectedLanguage] || greetings.english;
+
+        addMessage("ai", greeting);
+        await speakAssistantReply(greeting);
+    } else {
+        setStatus("Listening... Speak naturally in " + selectedLanguage + ".", true);
+        scheduleListening();
+    }
+});
+
+
+endButton.addEventListener("click", () => {
+    conversationActive = false;
+
+    clearTimeout(restartTimer);
+    stopRecognition();
+    stopSpeech();
+
+    assistantSpeaking = false;
+    updateButtons();
+
+    setStatus("Conversation ended. Press Start Conversation to continue.");
+});
+
+
+stopSpeakingButton.addEventListener("click", () => {
+    stopSpeech();
+
+    if (conversationActive) {
+        setStatus("Speech stopped. Preparing to listen...", true);
+        scheduleListening();
+    } else {
+        setStatus("Speech stopped.");
+    }
+});
+
+
+messageForm.addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const message = messageInput.value.trim();
+    if (!message) return;
+
+    messageInput.value = "";
+    await sendMessage(message);
+});
 </script>
 
-
 </body>
-
 </html>
