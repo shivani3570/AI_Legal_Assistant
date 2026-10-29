@@ -1,0 +1,490 @@
+
+const sf = id => document.getElementById("sf" + id);
+
+const sfWords = {
+    en: {
+        required: "This field is required.",
+        read: "Please answer: ",
+        correct: "Is this correct?",
+        finish: "Your answers have been reviewed. This starter version does not submit data to the original website.",
+        unsupported: "Speech recognition is unavailable in this browser. Please type your answer.",
+        listening: "Listening. Please speak now.",
+        nameError: "Please enter a valid name, not a phone number.",
+        emailError: "Please enter a valid email address.",
+        phoneError: "Please enter a valid phone number.",
+        numberError: "Please enter a valid number.",
+        answerCaptured: "Answer captured. Click Check answer."
+    },
+    kn: {
+        required: "ಈ ಮಾಹಿತಿ ಅಗತ್ಯವಿದೆ.",
+        read: "ದಯವಿಟ್ಟು ಉತ್ತರಿಸಿ: ",
+        correct: "ನೀವು ನೀಡಿದ ಉತ್ತರ ಸರಿಯಾಗಿದೆಯೇ?",
+        finish: "ನಿಮ್ಮ ಉತ್ತರಗಳನ್ನು ಪರಿಶೀಲಿಸಲಾಗಿದೆ. ಈ ಆವೃತ್ತಿಯು ಮೂಲ ವೆಬ್‌ಸೈಟ್‌ಗೆ ಮಾಹಿತಿಯನ್ನು ಸಲ್ಲಿಸುವುದಿಲ್ಲ.",
+        unsupported: "ಧ್ವನಿ ಗುರುತಿಸುವಿಕೆ ಲಭ್ಯವಿಲ್ಲ. ದಯವಿಟ್ಟು ಉತ್ತರವನ್ನು ಟೈಪ್ ಮಾಡಿ.",
+        listening: "ಕೇಳುತ್ತಿದ್ದೇನೆ. ಈಗ ಮಾತನಾಡಿ.",
+        nameError: "ದಯವಿಟ್ಟು ಫೋನ್ ಸಂಖ್ಯೆಯ ಬದಲು ಸರಿಯಾದ ಹೆಸರನ್ನು ನಮೂದಿಸಿ.",
+        emailError: "ದಯವಿಟ್ಟು ಸರಿಯಾದ ಇಮೇಲ್ ವಿಳಾಸವನ್ನು ನಮೂದಿಸಿ.",
+        phoneError: "ದಯವಿಟ್ಟು ಸರಿಯಾದ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ.",
+        numberError: "ದಯವಿಟ್ಟು ಸರಿಯಾದ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ.",
+        answerCaptured: "ಉತ್ತರವನ್ನು ದಾಖಲಿಸಲಾಗಿದೆ. ಉತ್ತರ ಪರಿಶೀಲಿಸಿ ಬಟನ್ ಒತ್ತಿ."
+    },
+    hi: {
+        required: "यह जानकारी आवश्यक है।",
+        read: "कृपया उत्तर दें: ",
+        correct: "क्या आपका उत्तर सही है?",
+        finish: "आपके उत्तर जाँच लिए गए हैं। यह संस्करण मूल वेबसाइट पर जानकारी जमा नहीं करता।",
+        unsupported: "आवाज़ पहचान उपलब्ध नहीं है। कृपया उत्तर टाइप करें।",
+        listening: "सुन रहा है। अब बोलें।",
+        nameError: "कृपया फोन नंबर की जगह सही नाम दर्ज करें।",
+        emailError: "कृपया सही ईमेल पता दर्ज करें।",
+        phoneError: "कृपया सही फोन नंबर दर्ज करें।",
+        numberError: "कृपया सही संख्या दर्ज करें।",
+        answerCaptured: "उत्तर दर्ज हो गया। उत्तर जाँचें बटन दबाएँ।"
+    }
+};
+
+const sfLang = () => sf("Language").value;
+const sfText = key => (sfWords[sfLang()] || sfWords.en)[key];
+const sfLocale = () => ({
+    en: "en-IN",
+    kn: "kn-IN",
+    hi: "hi-IN"
+}[sfLang()] || "en-IN");
+
+let sfFields = [];
+let sfAnswers = [];
+let sfIndex = 0;
+let sfRecognition = null;
+
+function sfSpeak(text) {
+    if (!("speechSynthesis" in window)) {
+        return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(String(text));
+    utterance.lang = sfLocale();
+    utterance.rate = 0.9;
+
+    const voices = window.speechSynthesis.getVoices();
+    const matchingVoice = voices.find(voice =>
+        voice.lang.toLowerCase() === sfLocale().toLowerCase()
+    ) || voices.find(voice =>
+        voice.lang.toLowerCase().startsWith(sfLang())
+    );
+
+    if (matchingVoice) {
+        utterance.voice = matchingVoice;
+    }
+
+    window.speechSynthesis.speak(utterance);
+}
+
+function sfMessage(text, ok = false) {
+    sf("FieldMessage").textContent = text;
+    sf("FieldMessage").className =
+        "sf-message " + (ok ? "sf-success" : "sf-error");
+    sf("FieldMessage").classList.remove("sf-hidden");
+}
+
+function sfStopListening() {
+    if (sfRecognition) {
+        try {
+            sfRecognition.stop();
+        } catch (error) {
+            // Recognition may already have stopped.
+        }
+        sfRecognition = null;
+    }
+}
+
+sf("DemoButton").onclick = () => {
+    sf("FormUrl").value =
+        "http://127.0.0.1:8000/demo_test_form.html";
+};
+
+sf("LoadForm").onsubmit = async event => {
+    event.preventDefault();
+
+    sf("LoadError").classList.add("sf-hidden");
+    sf("LoadButton").disabled = true;
+    sf("LoadButton").textContent = "Loading…";
+
+    try {
+        const response = await fetch(
+            "/smart-form-assistant/analyze",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    url: sf("FormUrl").value.trim()
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(
+                data.error || "Could not detect form fields."
+            );
+        }
+
+        sfFields = data.fields;
+        sfAnswers = sfFields.map(() => "");
+        sfIndex = 0;
+
+        if (!sfFields.length) {
+            throw new Error("No form fields were detected.");
+        }
+
+        sf("Assistant").classList.remove("sf-hidden");
+        sf("Summary").textContent =
+            `${data.count} fields detected from ${data.url}`;
+
+        sfRender();
+
+        sf("Assistant").scrollIntoView({
+            behavior: "smooth"
+        });
+
+    } catch (error) {
+        sf("LoadError").textContent = error.message;
+        sf("LoadError").classList.remove("sf-hidden");
+    } finally {
+        sf("LoadButton").disabled = false;
+        sf("LoadButton").textContent = "Load Form";
+    }
+};
+
+sf("ChangeForm").onclick = () => {
+    sfStopListening();
+    sf("Assistant").classList.add("sf-hidden");
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+};
+
+function sfRender() {
+    const field = sfFields[sfIndex];
+
+    if (!field) return;
+
+    sfStopListening();
+
+    sf("QuestionCard").classList.remove("sf-hidden");
+    sf("Review").classList.add("sf-hidden");
+    sf("ConfirmBox").classList.add("sf-hidden");
+    sf("FieldMessage").classList.add("sf-hidden");
+
+    sf("QuestionLabel").textContent =
+        field.label + (field.required ? " *" : "");
+
+    sf("QuestionHelp").textContent =
+        field.required ? sfText("required") : "Optional field";
+
+    sf("ProgressText").textContent =
+        `Field ${sfIndex + 1} of ${sfFields.length}`;
+
+    const progress = Math.round(
+        ((sfIndex + 1) / sfFields.length) * 100
+    );
+
+    sf("ProgressPercent").textContent = progress + "%";
+    sf("ProgressBar").style.width = progress + "%";
+    sf("Back").disabled = sfIndex === 0;
+    sf("VoiceStatus").textContent = "";
+
+    const area = sf("AnswerArea");
+    area.innerHTML = "";
+
+    let element;
+
+    if (field.type === "select" && field.options?.length) {
+        element = document.createElement("select");
+        element.add(new Option("Select an option", ""));
+
+        field.options.forEach(option => {
+            element.add(
+                new Option(option.text, option.value)
+            );
+        });
+
+    } else if (field.type === "textarea") {
+        element = document.createElement("textarea");
+        element.rows = 3;
+
+    } else {
+        element = document.createElement("input");
+
+        const allowedTypes = [
+            "email", "number", "date", "tel", "url"
+        ];
+
+        element.type = allowedTypes.includes(field.type)
+            ? field.type
+            : "text";
+    }
+
+    element.id = "sfAnswer";
+    element.value = sfAnswers[sfIndex] || "";
+    element.placeholder =
+        field.placeholder || "Enter your answer";
+    element.required = field.required;
+
+    area.appendChild(element);
+}
+
+sf("ReadQuestion").onclick = () => {
+    const field = sfFields[sfIndex];
+
+    if (field) {
+        sfSpeak(sfText("read") + field.label);
+    }
+};
+
+sf("SpeakAnswer").onclick = () => {
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        sf("VoiceStatus").textContent = sfText("unsupported");
+        return;
+    }
+
+    sfStopListening();
+
+    const recognition = new SpeechRecognition();
+    sfRecognition = recognition;
+
+    recognition.lang = sfLocale();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+        sf("VoiceStatus").textContent = sfText("listening");
+    };
+
+    recognition.onresult = event => {
+        const spokenAnswer =
+            event.results[0][0].transcript.trim();
+
+        sf("Answer").value = spokenAnswer;
+        sfAnswers[sfIndex] = spokenAnswer;
+
+        sf("VoiceStatus").textContent =
+            sfText("answerCaptured");
+
+        // Repeat the recognized answer aloud.
+        sfSpeak(spokenAnswer);
+    };
+
+    recognition.onerror = () => {
+        sf("VoiceStatus").textContent = sfText("unsupported");
+    };
+
+    recognition.onend = () => {
+        sfRecognition = null;
+    };
+
+    try {
+        recognition.start();
+    } catch (error) {
+        sf("VoiceStatus").textContent = sfText("unsupported");
+    }
+};
+
+function sfValidateAnswer(field, value) {
+    if (!value && field.required) {
+        return sfText("required");
+    }
+
+    if (!value) {
+        return "";
+    }
+
+    const label = field.label.toLowerCase();
+    const type = (field.type || "text").toLowerCase();
+
+    const isNameField =
+        /name|ಹೆಸರು|नाम/.test(label);
+
+    const isPhoneField =
+        type === "tel" ||
+        /phone|mobile|telephone|ಫೋನ್|ಮೊಬೈಲ್|ದೂರವಾಣಿ|फोन|मोबाइल/.test(label);
+
+    const isEmailField =
+        type === "email" || /email|ಇಮೇಲ್|ईमेल/.test(label);
+
+    const isNumberField =
+        type === "number" || /age|ಅಂಕೆ|ವಯಸ್ಸು|आयु/.test(label);
+
+    // Reject answers made only of digits and phone-like symbols in name fields.
+    if (isNameField && /^[\d\s+\-().]+$/.test(value)) {
+        return sfText("nameError");
+    }
+
+    if (isEmailField &&
+        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        return sfText("emailError");
+    }
+
+    if (isPhoneField &&
+        !/^\+?[\d\s()-]{7,18}$/.test(value)) {
+        return sfText("phoneError");
+    }
+
+    if (isNumberField && !Number.isFinite(Number(value))) {
+        return sfText("numberError");
+    }
+
+    return "";
+}
+
+sf("Check").onclick = async () => {
+    const field = sfFields[sfIndex];
+    const value = sf("Answer").value.trim();
+
+    const validationMessage =
+        sfValidateAnswer(field, value);
+
+    if (validationMessage) {
+        sfMessage(validationMessage);
+        sfSpeak(validationMessage);
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            "/smart-form-assistant/validate",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    label: field.label,
+                    value,
+                    required: field.required,
+                    type: field.type
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.valid) {
+            const message =
+                data.message || "Please check your answer.";
+
+            sfMessage(message);
+            sfSpeak(message);
+            return;
+        }
+
+        sfAnswers[sfIndex] = value;
+
+        sf("ConfirmText").textContent =
+            `${field.label}: ${value || "—"}. ${sfText("correct")}`;
+
+        sf("ConfirmBox").classList.remove("sf-hidden");
+        sfMessage("Please confirm your answer.", true);
+        sfSpeak(sf("ConfirmText").textContent);
+
+    } catch (error) {
+        sfMessage("Could not validate your answer. Please try again.");
+    }
+};
+
+sf("Edit").onclick = () => {
+    sf("ConfirmBox").classList.add("sf-hidden");
+    sf("Answer").focus();
+};
+
+sf("Confirm").onclick = () => {
+    sf("ConfirmBox").classList.add("sf-hidden");
+
+    if (sfIndex < sfFields.length - 1) {
+        sfIndex++;
+        sfRender();
+
+        sfSpeak(
+            sfText("read") + sfFields[sfIndex].label
+        );
+    } else {
+        sfReview();
+    }
+};
+
+sf("Back").onclick = () => {
+    sfAnswers[sfIndex] = sf("Answer").value;
+
+    if (sfIndex > 0) {
+        sfIndex--;
+        sfRender();
+    }
+};
+
+function sfReview() {
+    sfStopListening();
+
+    sf("QuestionCard").classList.add("sf-hidden");
+    sf("Review").classList.remove("sf-hidden");
+
+    sf("ProgressText").textContent = "Review";
+    sf("ProgressPercent").textContent = "100%";
+    sf("ProgressBar").style.width = "100%";
+
+    sf("ReviewList").innerHTML = "";
+
+    sfFields.forEach((field, index) => {
+        const row = document.createElement("div");
+        row.className = "sf-review-row";
+
+        const label = document.createElement("strong");
+        label.textContent = field.label;
+
+        const value = document.createElement("div");
+        value.textContent = sfAnswers[index] || "—";
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "sf-secondary";
+        button.textContent = "Edit";
+
+        button.onclick = () => {
+            sfIndex = index;
+            sfRender();
+        };
+
+        row.append(label, value, button);
+        sf("ReviewList").appendChild(row);
+    });
+}
+
+sf("ReviewBack").onclick = () => {
+    sfIndex = sfFields.length - 1;
+    sfRender();
+};
+
+sf("Finish").onclick = () => {
+    sf("FinishMessage").textContent = sfText("finish");
+    sf("FinishMessage").className =
+        "sf-message sf-success";
+
+    sfSpeak(sfText("finish"));
+};
+
+// Load available voices when the browser provides them.
+if ("speechSynthesis" in window) {
+    window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+    };
+}

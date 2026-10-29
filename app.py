@@ -27,6 +27,8 @@ from playwright.sync_api import (
 load_dotenv()
 
 app = Flask(__name__)
+from smart_form_module.routes import smart_form_bp
+app.register_blueprint(smart_form_bp)
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)

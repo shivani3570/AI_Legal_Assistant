@@ -1,0 +1,128 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Registration Form</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 650px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f4f6fb;
+        }
+
+        form {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        label {
+            display: block;
+            margin-top: 16px;
+            font-weight: bold;
+        }
+
+        input, textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 11px;
+            margin-top: 7px;
+            border: 1px solid #bbb;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 22px;
+            background: #5145e5;
+            color: white;
+            border: 0;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #e4f8e9;
+            color: #176534;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Demo Registration Form</h1>
+
+    <form id="registrationForm">
+        <label for="name">Full Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="phone">Phone Number:</label>
+        <input type="tel" id="phone" name="phone">
+
+        <label for="address">Address:</label>
+        <textarea id="address" name="address"></textarea>
+
+        <button type="submit">Submit Registration</button>
+    </form>
+
+    <div id="result" role="status"></div>
+
+    <script>
+        document.getElementById("registrationForm")
+            .addEventListener("submit", function(event) {
+                event.preventDefault();
+
+                const name = document.getElementById("name").value.trim();
+                const email = document.getElementById("email").value.trim();
+
+                if (!name || !email) {
+                    alert("Please enter your name and email.");
+                    return;
+                }
+
+                const result = document.getElementById("result");
+                result.textContent =
+                    "Demo registration submitted successfully for " + name + ".";
+
+                result.style.display = "block";
+            });
+
+        // Allows the Smart Form Assistant to populate this demo form.
+        window.addEventListener("message", function(event) {
+            if (event.origin !== window.location.origin) return;
+
+            if (event.data?.type !== "SMART_FORM_FILL") return;
+
+            const answers = event.data.answers || {};
+
+            if (typeof answers.name === "string") {
+                document.getElementById("name").value = answers.name;
+            }
+
+            if (typeof answers.email === "string") {
+                document.getElementById("email").value = answers.email;
+            }
+
+            if (typeof answers.phone === "string") {
+                document.getElementById("phone").value = answers.phone;
+            }
+
+            if (typeof answers.address === "string") {
+                document.getElementById("address").value = answers.address;
+            }
+        });
+    </script>
+</body>
+</html>
