@@ -1,572 +1,1097 @@
-"use strict";
+// =====================================================
+// AI LEGAL ASSISTANT - SMART FORM ASSISTANT
+// Languages: English, Kannada and Hindi
+// =====================================================
 
-const sf = id => document.getElementById("sf" + id);
 
-const LANGUAGES = {
-    en: { name: "English", locale: "en-IN" },
-    kn: { name: "Kannada", locale: "kn-IN" },
-    hi: { name: "Hindi", locale: "hi-IN" },
-    ta: { name: "Tamil", locale: "ta-IN" },
-    te: { name: "Telugu", locale: "te-IN" }
+// -----------------------------------------------------
+// 1. ELEMENT HELPER
+// -----------------------------------------------------
+
+const sf = (id) => document.getElementById("sf" + id);
+
+
+// -----------------------------------------------------
+// 2. LANGUAGE CONFIGURATION
+// -----------------------------------------------------
+
+const LANGUAGE_CONFIG = {
+    en: {
+        name: "English",
+        locale: "en-IN"
+    },
+    kn: {
+        name: "Kannada",
+        locale: "kn-IN"
+    },
+    hi: {
+        name: "Hindi",
+        locale: "hi-IN"
+    }
 };
+
+
+const UI_TEXT = {
+    en: {
+        required: "Please enter your answer.",
+        speak: "Speak answer",
+        listening: "Listening... Please speak now.",
+        notSupported: "Voice input is not supported in this browser. Please type your answer.",
+        questionError: "Unable to load the question.",
+        check: "Check Answer",
+        valid: "Your answer looks valid.",
+        edit: "Edit",
+        confirm: "Yes, continue",
+        back: "Back",
+        review: "Review your answers",
+        finish: "Finish / Submit Application",
+        submitting: "Submitting your application...",
+        submitted: "Submission process completed.",
+        loadError: "Unable to load the form.",
+        noFields: "No form fields were found.",
+        selectOption: "Select an option",
+        requiredField: "Required field",
+        optionalField: "Optional field",
+        answerPlaceholder: "Enter your answer here",
+        reviewTitle: "Your answers",
+        editAnswer: "Edit answer",
+        formLoaded: "Form loaded successfully.",
+        question: "Question",
+        of: "of",
+        chooseOption: "Please select an option."
+    },
+
+    kn: {
+        required: "ದಯವಿಟ್ಟು ನಿಮ್ಮ ಉತ್ತರವನ್ನು ನಮೂದಿಸಿ.",
+        speak: "ಉತ್ತರವನ್ನು ಮಾತನಾಡಿ",
+        listening: "ಕೇಳಲಾಗುತ್ತಿದೆ... ಈಗ ಮಾತನಾಡಿ.",
+        notSupported: "ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಧ್ವನಿ ಇನ್‌ಪುಟ್ ಲಭ್ಯವಿಲ್ಲ. ದಯವಿಟ್ಟು ಟೈಪ್ ಮಾಡಿ.",
+        questionError: "ಪ್ರಶ್ನೆಯನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+        check: "ಉತ್ತರ ಪರಿಶೀಲಿಸಿ",
+        valid: "ನಿಮ್ಮ ಉತ್ತರ ಸರಿಯಾಗಿದೆ.",
+        edit: "ತಿದ್ದುಪಡಿ ಮಾಡಿ",
+        confirm: "ಹೌದು, ಮುಂದುವರಿಸಿ",
+        back: "ಹಿಂದಕ್ಕೆ",
+        review: "ನಿಮ್ಮ ಉತ್ತರಗಳನ್ನು ಪರಿಶೀಲಿಸಿ",
+        finish: "ಮುಗಿಸಿ / ಅರ್ಜಿ ಸಲ್ಲಿಸಿ",
+        submitting: "ನಿಮ್ಮ ಅರ್ಜಿಯನ್ನು ಸಲ್ಲಿಸಲಾಗುತ್ತಿದೆ...",
+        submitted: "ಸಲ್ಲಿಕೆ ಪ್ರಕ್ರಿಯೆ ಪೂರ್ಣಗೊಂಡಿದೆ.",
+        loadError: "ಫಾರ್ಮ್ ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+        noFields: "ಯಾವುದೇ ಫಾರ್ಮ್ ಕ್ಷೇತ್ರಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+        selectOption: "ಒಂದು ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ",
+        requiredField: "ಕಡ್ಡಾಯ ಕ್ಷೇತ್ರ",
+        optionalField: "ಐಚ್ಛಿಕ ಕ್ಷೇತ್ರ",
+        answerPlaceholder: "ನಿಮ್ಮ ಉತ್ತರವನ್ನು ಇಲ್ಲಿ ನಮೂದಿಸಿ",
+        reviewTitle: "ನಿಮ್ಮ ಉತ್ತರಗಳು",
+        editAnswer: "ಉತ್ತರ ತಿದ್ದುಪಡಿ",
+        formLoaded: "ಫಾರ್ಮ್ ಯಶಸ್ವಿಯಾಗಿ ಲೋಡ್ ಆಗಿದೆ.",
+        question: "ಪ್ರಶ್ನೆ",
+        of: "ರಲ್ಲಿ",
+        chooseOption: "ದಯವಿಟ್ಟು ಒಂದು ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ."
+    },
+
+    hi: {
+        required: "कृपया अपना उत्तर दर्ज करें।",
+        speak: "उत्तर बोलें",
+        listening: "सुन रहा है... अब बोलें।",
+        notSupported: "इस ब्राउज़र में वॉइस इनपुट उपलब्ध नहीं है। कृपया टाइप करें।",
+        questionError: "प्रश्न लोड नहीं हो सका।",
+        check: "उत्तर जांचें",
+        valid: "आपका उत्तर सही लग रहा है।",
+        edit: "संपादित करें",
+        confirm: "हाँ, आगे बढ़ें",
+        back: "पीछे जाएँ",
+        review: "अपने उत्तरों की समीक्षा करें",
+        finish: "समाप्त करें / आवेदन जमा करें",
+        submitting: "आपका आवेदन जमा किया जा रहा है...",
+        submitted: "जमा करने की प्रक्रिया पूरी हो गई।",
+        loadError: "फॉर्म लोड नहीं हो सका।",
+        noFields: "कोई फॉर्म फ़ील्ड नहीं मिला।",
+        selectOption: "एक विकल्प चुनें",
+        requiredField: "अनिवार्य फ़ील्ड",
+        optionalField: "वैकल्पिक फ़ील्ड",
+        answerPlaceholder: "अपना उत्तर यहाँ दर्ज करें",
+        reviewTitle: "आपके उत्तर",
+        editAnswer: "उत्तर संपादित करें",
+        formLoaded: "फॉर्म सफलतापूर्वक लोड हो गया।",
+        question: "प्रश्न",
+        of: "में से",
+        chooseOption: "कृपया एक विकल्प चुनें।"
+    }
+};
+
+
+// -----------------------------------------------------
+// 3. APPLICATION STATE
+// -----------------------------------------------------
 
 let fields = [];
 let answers = [];
 let current = 0;
 let formUrl = "";
+
 let recognition = null;
-let sessionNumber = 0;
-let busy = false;
+let translationCache = {};
+let lastValidated = false;
 
-function selectedLanguage() {
-    const value = sf("Language")?.value || "en";
-    return LANGUAGES[value] ? value : "en";
+
+// -----------------------------------------------------
+// 4. COMMON HELPERS
+// -----------------------------------------------------
+
+function languageCode() {
+    return sf("Language")?.value || "en";
 }
 
-function langInfo() {
-    return LANGUAGES[selectedLanguage()];
+
+function languageInfo() {
+    return LANGUAGE_CONFIG[languageCode()] || LANGUAGE_CONFIG.en;
 }
 
-function stopListening() {
-    sessionNumber++;
-    if (recognition) {
-        try { recognition.abort(); } catch (_) {}
-        recognition = null;
-    }
-}
 
-function speak(text) {
-    return new Promise(resolve => {
-        if (!window.speechSynthesis) {
-            console.error("Speech output is unavailable.");
-            resolve();
-            return;
-        }
+function msg(key) {
+    const language = languageCode();
 
-        window.speechSynthesis.cancel();
-
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = langInfo().locale;
-        utterance.rate = 0.82;
-
-        const voices = window.speechSynthesis.getVoices();
-        const prefix = selectedLanguage() === "kn" ? "kn" :
-            selectedLanguage() === "hi" ? "hi" :
-            selectedLanguage() === "ta" ? "ta" :
-            selectedLanguage() === "te" ? "te" : "en";
-
-        const voice = voices.find(v =>
-            v.lang.toLowerCase() === langInfo().locale.toLowerCase()
-        ) || voices.find(v =>
-            v.lang.toLowerCase().startsWith(prefix)
-        );
-
-        if (voice) utterance.voice = voice;
-
-        utterance.onend = resolve;
-        utterance.onerror = event => {
-            console.error("Speech error:", event.error);
-            resolve();
-        };
-
-        window.speechSynthesis.speak(utterance);
-    });
-}
-
-async function translate(text, mode, field = {}) {
-    const response = await fetch("/smart-form-assistant/translate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            text,
-            language: langInfo().name,
-            targetLanguage: "English",
-            mode,
-            fieldType: field.type || "text",
-            fieldLabel: field.label || ""
-        })
-    });
-
-    const data = await response.json();
-    if (!response.ok || !data.success) {
-        throw new Error(data.error || "Translation failed.");
-    }
-
-    return String(data.translated || "").trim();
-}
-
-function isEmail(field) {
-    return field.type === "email" ||
-        /email|e-mail/i.test(field.label || "");
-}
-
-function isPhone(field) {
-    return field.type === "tel" ||
-        /phone|mobile|telephone/i.test(field.label || "");
-}
-
-function isName(field) {
-    return /name|ಹೆಸರು|नाम|பெயர்|పేరు/i.test(
-        `${field.label || ""} ${field.name || ""}`
+    return (
+        UI_TEXT[language]?.[key] ||
+        UI_TEXT.en[key] ||
+        key
     );
 }
 
-function isProtected(field) {
-    return [
-        "email", "tel", "number", "range", "date",
-        "time", "datetime-local", "month", "week", "url", "password"
-    ].includes((field.type || "").toLowerCase()) ||
-        isEmail(field) || isPhone(field);
-}
 
-function showMessage(text, success = false) {
+function setMessage(text, success = false) {
     const element = sf("FieldMessage");
+
     if (!element) return;
 
     element.textContent = text;
-    element.className = success
-        ? "sf-message sf-success"
-        : "sf-message sf-error";
-    element.classList.remove("sf-hidden");
+    element.style.color = success ? "green" : "#c0392b";
 }
 
-function localError(field, value) {
-    if (field.required && !value) return "This field is required.";
 
-    if (isEmail(field) && value &&
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        return "Please enter a valid email address.";
+function clearMessage() {
+    const element = sf("FieldMessage");
+
+    if (element) {
+        element.textContent = "";
     }
-
-    if (isPhone(field) && value) {
-        const digits = value.replace(/\D/g, "");
-        if (digits.length < 7 || digits.length > 15) {
-            return "Please enter a valid phone number.";
-        }
-    }
-
-    if (["number", "range"].includes(field.type) &&
-        value && !Number.isFinite(Number(value))) {
-        return "Please enter a valid number.";
-    }
-
-    return "";
 }
 
-// Recognition runs only after the assistant has finished speaking.
-function listenOnce() {
-    return new Promise((resolve, reject) => {
-        const SpeechRecognition =
-            window.SpeechRecognition || window.webkitSpeechRecognition;
 
-        if (!SpeechRecognition) {
-            reject(new Error(
-                "Speech recognition is unavailable in this browser. " +
-                "Try Chrome and allow microphone access."
-            ));
-            return;
-        }
+function showElement(element) {
+    if (element) {
+        element.style.display = "";
+    }
+}
 
-        stopListening();
 
-        const mySession = sessionNumber;
-        const instance = new SpeechRecognition();
-        recognition = instance;
+function hideElement(element) {
+    if (element) {
+        element.style.display = "none";
+    }
+}
 
-        instance.lang = langInfo().locale;
-        instance.continuous = false;
-        instance.interimResults = false;
-        instance.maxAlternatives = 3;
 
-        let finished = false;
-
-        const finish = (callback, value) => {
-            if (finished) return;
-            finished = true;
-            if (recognition === instance) recognition = null;
-            callback(value);
-        };
-
-        instance.onresult = event => {
-            const result = event.results[0][0];
-            finish(resolve, result.transcript.trim());
-        };
-
-        instance.onerror = event => {
-            finish(reject, new Error(
-                "Speech recognition error: " + event.error
-            ));
-        };
-
-        instance.onend = () => {
-            if (!finished && mySession === sessionNumber) {
-                finish(reject, new Error("No speech detected. Please try again."));
-            }
-        };
-
-        try {
-            instance.start();
-        } catch (error) {
-            finish(reject, error);
-        }
+async function postJSON(url, data) {
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
     });
+
+    let result;
+
+    try {
+        result = await response.json();
+    } catch {
+        throw new Error("Invalid response from server.");
+    }
+
+    if (!response.ok || result.success === false) {
+        throw new Error(
+            result.error || "Something went wrong."
+        );
+    }
+
+    return result;
 }
 
-async function askForQuestion(field) {
-    const prefix = {
-        en: "Please answer: ",
-        kn: "ದಯವಿಟ್ಟು ಉತ್ತರಿಸಿ: ",
-        hi: "कृपया उत्तर दें: ",
-        ta: "தயவுசெய்து பதிலளிக்கவும்: ",
-        te: "దయచేసి సమాధానం చెప్పండి: "
-    }[selectedLanguage()];
 
-    return translate(prefix + field.label, "question", field);
+// -----------------------------------------------------
+// 5. SPEECH OUTPUT
+// -----------------------------------------------------
+
+function speak(text) {
+    if (!("speechSynthesis" in window)) {
+        return;
+    }
+
+    if (!text) return;
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    utterance.lang = languageInfo().locale;
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+
+    const voices = window.speechSynthesis.getVoices();
+
+    const preferredVoice = voices.find(voice =>
+        voice.lang.toLowerCase().startsWith(
+            languageCode()
+        )
+    );
+
+    if (preferredVoice) {
+        utterance.voice = preferredVoice;
+    }
+
+    window.speechSynthesis.speak(utterance);
 }
 
-async function listenWithPrompt(prompt) {
-    await speak(prompt);
-    return listenOnce();
+
+// -----------------------------------------------------
+// 6. STOP VOICE INPUT
+// -----------------------------------------------------
+
+function stopListening() {
+    if (recognition) {
+        try {
+            recognition.stop();
+        } catch (error) {
+            console.log("Recognition already stopped.");
+        }
+
+        recognition = null;
+    }
 }
-async function renderQuestion() {
+// -----------------------------------------------------
+// 7. MANUAL VOICE INPUT
+// -----------------------------------------------------
+
+function listenOnce() {
     stopListening();
-    window.speechSynthesis?.cancel();
 
-    const field = fields[current];
-    if (!field) return;
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
 
-    sf("QuestionCard").classList.remove("sf-hidden");
-    sf("Review").classList.add("sf-hidden");
-    sf("ConfirmBox").classList.add("sf-hidden");
+    if (!SpeechRecognition) {
+        setMessage(msg("notSupported"));
+        speak(msg("notSupported"));
+        return;
+    }
 
-    // Original field label stays in its original language.
-    sf("QuestionLabel").textContent =
-        field.label + (field.required ? " *" : "");
+    const input = document.getElementById("sfAnswerInput");
 
-    sf("ProgressText").textContent =
-        `Field ${current + 1} of ${fields.length}`;
+    if (!input) return;
 
-    const percent = Math.round((current + 1) / fields.length * 100);
-    sf("ProgressPercent").textContent = percent + "%";
-    sf("ProgressBar").style.width = percent + "%";
+    recognition = new SpeechRecognition();
 
-    const area = sf("AnswerArea");
-    area.innerHTML = "";
+    recognition.lang = languageInfo().locale;
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    const status = sf("VoiceStatus");
+
+    if (status) {
+        status.textContent = msg("listening");
+    }
+
+    recognition.onresult = function(event) {
+        let spokenText =
+            event.results[0][0].transcript.trim();
+
+        const field = currentField();
+
+        const isEmailField =
+            field &&
+            (
+                (field.type || "").toLowerCase() === "email" ||
+                /email|e-mail|ईमेल/i.test(field.label || "")
+            );
+
+        if (isEmailField) {
+            // Convert common English and Hindi ways of saying @.
+            spokenText = spokenText
+                .toLowerCase()
+                .replace(
+                    /\s*(?:at\s*the\s*rate|attherate|at\s*sign|at\s*symbol|at|एट\s*द\s*रेट|एटदरेट|एटरेट|एट\s*साइन|एट\s*सिंबल|ऐट|एट|थे\s*एट|थेअत|थीअत)\s*/gi,
+                    "@"
+                )
+
+                // Convert spoken dot into a period.
+                .replace(/\s*(?:dot|डॉट)\s*/gi, ".")
+
+                // Remove unnecessary spaces.
+                .replace(/\s+/g, "");
+        }
+
+        input.value = spokenText;
+
+        if (status) {
+            status.textContent = "";
+        }
+
+        clearMessage();
+    };
+
+    recognition.onerror = function(event) {
+        console.log("Voice recognition error:", event.error);
+
+        if (status) {
+            status.textContent = msg("notSupported");
+        }
+    };
+
+    recognition.onend = function() {
+        recognition = null;
+
+        if (status && status.textContent === msg("listening")) {
+            status.textContent = "";
+        }
+    };
+
+    try {
+        recognition.start();
+    } catch (error) {
+        console.error(error);
+
+        if (status) {
+            status.textContent = msg("notSupported");
+        }
+    }
+}
+
+
+// -----------------------------------------------------
+// 8. TRANSLATION
+// -----------------------------------------------------
+
+async function translateText(
+    text,
+    mode,
+    field = {}
+) {
+    if (!text) return text;
+
+    if (languageCode() === "en") {
+        return text;
+    }
+
+    const cacheKey = [
+        languageCode(),
+        mode,
+        field.label || "",
+        text
+    ].join("|");
+
+    if (translationCache[cacheKey]) {
+        return translationCache[cacheKey];
+    }
+
+    const result = await postJSON(
+        "/smart-form-assistant/translate",
+        {
+            text: text,
+            language: languageCode(),
+            mode: mode,
+            fieldType: field.type || "text",
+            fieldLabel: field.label || ""
+        }
+    );
+
+    translationCache[cacheKey] = result.translated;
+
+    return result.translated;
+}
+
+
+// -----------------------------------------------------
+// 9. GET CURRENT FIELD
+// -----------------------------------------------------
+
+function currentField() {
+    return fields[current];
+}
+// -----------------------------------------------------
+// 10. UPDATE PROGRESS
+// -----------------------------------------------------
+
+function updateProgress() {
+    const total = fields.length;
+    const completed = current;
+
+    const percentage = total
+        ? Math.round((completed / total) * 100)
+        : 0;
+
+    const progressText = sf("ProgressText");
+    const progressPercent = sf("ProgressPercent");
+    const progressBar = sf("ProgressBar");
+
+    if (progressText) {
+        progressText.textContent =
+            `${msg("question")} ${Math.min(current + 1, total)} ${msg("of")} ${total}`;
+    }
+
+    if (progressPercent) {
+        progressPercent.textContent = percentage + "%";
+    }
+
+    if (progressBar) {
+        progressBar.style.width = percentage + "%";
+    }
+}
+
+
+// -----------------------------------------------------
+// 11. RENDER ANSWER INPUT
+// -----------------------------------------------------
+
+function renderAnswerInput(field) {
+    const container = sf("AnswerArea");
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const fieldType = (field.type || "text").toLowerCase();
 
     let input;
 
-    if (field.type === "select") {
+    if (fieldType === "select") {
+
         input = document.createElement("select");
-        input.add(new Option("Select an option", ""));
+
+        const defaultOption = document.createElement("option");
+
+        defaultOption.value = "";
+        defaultOption.textContent = msg("selectOption");
+
+        input.appendChild(defaultOption);
+
         (field.options || []).forEach(option => {
-            input.add(new Option(option.text, option.value));
+            const optionElement = document.createElement("option");
+
+            optionElement.value = option.value;
+            optionElement.textContent = option.text;
+
+            input.appendChild(optionElement);
         });
-    } else if (field.type === "textarea") {
+
+    } else if (fieldType === "textarea") {
+
         input = document.createElement("textarea");
-    } else {
+        input.rows = 4;
+
+    } else if (fieldType === "checkbox") {
+
         input = document.createElement("input");
-        input.type = [
-            "email", "number", "date", "tel", "url", "password"
-        ].includes(field.type) ? field.type : "text";
+        input.type = "checkbox";
+
+    } else {
+
+        input = document.createElement("input");
+
+        const allowedTypes = [
+            "text", "email", "tel",
+            "number", "date", "url"
+        ];
+
+        input.type = allowedTypes.includes(fieldType)
+            ? fieldType
+            : "text";
     }
 
-    input.id = "sfAnswer";
-    input.value = answers[current] || "";
-    input.placeholder = field.placeholder || "Your answer";
-    input.required = Boolean(field.required);
-    area.appendChild(input);
+    input.id = "sfAnswerInput";
 
-    await runConversationForField(field);
-}
-
-async function runConversationForField(field) {
-    if (busy) return;
-    busy = true;
-
-    try {
-        let question = await askForQuestion(field);
-        await speak(question);
-
-        let spokenAnswer;
-
-        while (true) {
-            const listenPrompt = {
-                en: "Please speak your answer now.",
-                kn: "ದಯವಿಟ್ಟು ಈಗ ನಿಮ್ಮ ಉತ್ತರವನ್ನು ಹೇಳಿ.",
-                hi: "कृपया अब अपना उत्तर बताइए।",
-                ta: "இப்போது உங்கள் பதிலைச் சொல்லுங்கள்.",
-                te: "దయచేసి ఇప్పుడు మీ సమాధానం చెప్పండి."
-            }[selectedLanguage()];
-
-            try {
-                spokenAnswer = await listenWithPrompt(listenPrompt);
-            } catch (error) {
-                showMessage(error.message);
-                await speak(error.message);
-                return;
-            }
-
-            let value = spokenAnswer;
-
-            // Preserve email addresses, phone numbers, dates and similar values.
-            if (selectedLanguage() !== "en" &&
-                !isProtected(field) &&
-                field.type !== "select") {
-                value = await translate(value, "answer", field);
-            }
-
-            value = value.replace(/^["'“”]+|["'“”]+$/g, "").trim();
-
-            const error = localError(field, value);
-            if (error) {
-                await speak(error);
-                continue;
-            }
-
-            answers[current] = value;
-            sf("Answer").value = value;
-            sf("ConfirmText").textContent = `${field.label}: ${value || "—"}`;
-            sf("ConfirmBox").classList.remove("sf-hidden");
-
-            const confirmation = {
-                en: `I understood ${value}. Say yes to confirm or no to try again.`,
-                kn: `ನಿಮ್ಮ ಉತ್ತರ ${value}. ಸರಿಯಾಗಿದ್ದರೆ ಹೌದು ಎಂದು ಹೇಳಿ. ಮತ್ತೆ ಹೇಳಲು ಇಲ್ಲ ಎಂದು ಹೇಳಿ.`,
-                hi: `आपका उत्तर ${value} है। सही है तो हाँ कहें। दोबारा बोलने के लिए नहीं कहें।`,
-                ta: `உங்கள் பதில் ${value}. சரி என்றால் ஆம் சொல்லுங்கள். மீண்டும் சொல்ல இல்லை என்று கூறுங்கள்.`,
-                te: `మీ సమాధానం ${value}. సరైతే అవును అని చెప్పండి. మళ్లీ చెప్పాలంటే కాదు అని చెప్పండి.`
-            }[selectedLanguage()];
-
-            await speak(confirmation);
-
-            let decision;
-            try {
-                decision = await listenOnce();
-            } catch (error) {
-                showMessage(error.message);
-                return;
-            }
-
-            const normalized = decision.toLowerCase();
-
-            const yes = {
-                en: /\byes\b|correct|right/i,
-                kn: /ಹೌದು|ಸರಿಯಾಗಿದೆ|ಸರಿ/,
-                hi: /हाँ|हां|सही|ठीक/,
-                ta: /ஆம்|சரி|ஆமாம்/,
-                te: /అవును|సరి|సరైనది/
-            }[selectedLanguage()];
-
-            const no = {
-                en: /\bno\b|wrong|again/i,
-                kn: /ಇಲ್ಲ|ತಪ್ಪು|ಮತ್ತೆ/,
-                hi: /नहीं|गलत|दोबारा/,
-                ta: /இல்லை|தவறு|மீண்டும்/,
-                te: /కాదు|తప్పు|మళ్లీ/
-            }[selectedLanguage()];
-
-            if (yes.test(normalized)) break;
-
-            if (no.test(normalized)) {
-                sf("ConfirmBox").classList.add("sf-hidden");
-                await speak({
-                    en: "Please say your answer again.",
-                    kn: "ದಯವಿಟ್ಟು ನಿಮ್ಮ ಉತ್ತರವನ್ನು ಮತ್ತೆ ಹೇಳಿ.",
-                    hi: "कृपया अपना उत्तर फिर से बताइए।",
-                    ta: "உங்கள் பதிலை மீண்டும் சொல்லுங்கள்.",
-                    te: "దయచేసి మీ సమాధానాన్ని మళ్లీ చెప్పండి."
-                }[selectedLanguage()]);
-                continue;
-            }
-
-            await speak({
-                en: "Please say yes or no.",
-                kn: "ದಯವಿಟ್ಟು ಹೌದು ಅಥವಾ ಇಲ್ಲ ಎಂದು ಹೇಳಿ.",
-                hi: "कृपया हाँ या नहीं कहें।",
-                ta: "ஆம் அல்லது இல்லை என்று சொல்லுங்கள்.",
-                te: "అవును లేదా కాదు అని చెప్పండి."
-            }[selectedLanguage()]);
-        }
-
-        sf("ConfirmBox").classList.add("sf-hidden");
-
-        if (current < fields.length - 1) {
-            current++;
-            await renderQuestion();
-        } else {
-            showReview();
-            await speak({
-                en: "All questions are complete. Please review your answers.",
-                kn: "ಎಲ್ಲಾ ಪ್ರಶ್ನೆಗಳು ಮುಗಿದಿವೆ. ದಯವಿಟ್ಟು ನಿಮ್ಮ ಉತ್ತರಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.",
-                hi: "सभी प्रश्न पूरे हो गए हैं। कृपया अपने उत्तर जाँचें।",
-                ta: "அனைத்து கேள்விகளும் முடிந்தன. உங்கள் பதில்களைச் சரிபார்க்கவும்.",
-                te: "అన్ని ప్రశ్నలు పూర్తయ్యాయి. దయచేసి సమాధానాలను తనిఖీ చేయండి."
-            }[selectedLanguage()]);
-        }
-    } catch (error) {
-        console.error(error);
-        showMessage(error.message || "Voice interaction failed.");
-    } finally {
-        busy = false;
+    if (field.placeholder && input.type !== "checkbox") {
+        input.placeholder = field.placeholder;
+    } else if (
+        input.tagName !== "SELECT" &&
+        input.type !== "checkbox"
+    ) {
+        input.placeholder = msg("answerPlaceholder");
     }
+
+    if (field.required) {
+        input.required = true;
+    }
+
+    if (fieldType === "checkbox") {
+        input.checked = answers[current] === "true";
+    } else {
+        input.value = answers[current] ?? "";
+    }
+
+    input.className = "sf-answer-input";
+
+    container.appendChild(input);
 }
 
-function showReview() {
+
+// -----------------------------------------------------
+// 12. GET CURRENT ANSWER
+// -----------------------------------------------------
+
+function getCurrentAnswer() {
+    const input = document.getElementById("sfAnswerInput");
+
+    if (!input) return "";
+
+    if (input.type === "checkbox") {
+        return input.checked ? "true" : "false";
+    }
+
+    return input.value.trim();
+}
+
+
+// -----------------------------------------------------
+// 13. DISPLAY QUESTION
+// -----------------------------------------------------
+
+async function displayQuestion() {
     stopListening();
     window.speechSynthesis?.cancel();
 
-    sf("QuestionCard").classList.add("sf-hidden");
-    sf("Review").classList.remove("sf-hidden");
+    clearMessage();
 
-    const list = sf("ReviewList");
-    list.innerHTML = "";
+    const field = currentField();
 
-    fields.forEach((field, index) => {
-        const row = document.createElement("div");
-        row.className = "sf-review-row";
+    if (!field) {
+        showReview();
+        return;
+    }
 
-        const label = document.createElement("strong");
-        label.textContent = field.label;
+    hideElement(sf("Review"));
+    showElement(sf("QuestionCard"));
+    hideElement(sf("ConfirmBox"));
 
-        const value = document.createElement("p");
-        value.textContent = answers[index] || "—";
+    updateProgress();
 
-        const edit = document.createElement("button");
-        edit.type = "button";
-        edit.textContent = "Edit answer";
-        edit.onclick = async () => {
-            current = index;
-            await renderQuestion();
-        };
+    const questionLabel = sf("QuestionLabel");
+    const questionHelp = sf("QuestionHelp");
 
-        row.append(label, value, edit);
-        list.appendChild(row);
-    });
-
-    sf("FinishMessage").textContent =
-        "Answers collected. Check them before submitting.";
-}
-
-async function loadForm(event) {
-    event.preventDefault();
-
-    const button = sf("LoadButton");
-    button.disabled = true;
+    if (questionLabel) {
+        questionLabel.textContent = "Loading question...";
+    }
 
     try {
-        formUrl = sf("FormUrl").value.trim();
+        const translatedQuestion = await translateText(
+            field.label,
+            "question",
+            field
+        );
 
-        const response = await fetch("/smart-form-assistant/analyze", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url: formUrl })
-        });
-
-        const data = await response.json();
-        if (!response.ok || !data.success) {
-            throw new Error(data.error || "Could not load form.");
+        if (questionLabel) {
+            questionLabel.textContent = translatedQuestion;
         }
 
-        fields = data.fields;
-        answers = fields.map(() => "");
-        current = 0;
+        if (questionHelp) {
+            questionHelp.textContent = field.required
+                ? msg("requiredField")
+                : msg("optionalField");
+        }
 
-        sf("Summary").textContent =
-            `${fields.length} fields detected from ${data.url}`;
-        sf("Assistant").classList.remove("sf-hidden");
+        renderAnswerInput(field);
 
-        // The Load Form click starts the voice conversation.
-        await renderQuestion();
+        const speakButton = sf("SpeakAnswer");
+
+        if (speakButton) {
+            speakButton.textContent = msg("speak");
+        }
+
+        const checkButton = sf("Check");
+
+        if (checkButton) {
+            checkButton.textContent = msg("check");
+        }
+
+        const backButton = sf("Back");
+
+        if (backButton) {
+            backButton.textContent = msg("back");
+            backButton.disabled = current === 0;
+        }
+
+        speak(translatedQuestion);
+
     } catch (error) {
-        sf("LoadError").textContent = error.message;
-        sf("LoadError").classList.remove("sf-hidden");
-    } finally {
-        button.disabled = false;
+        console.error(error);
+
+        if (questionLabel) {
+            questionLabel.textContent = field.label;
+        }
+
+        renderAnswerInput(field);
+
+        setMessage(msg("questionError"));
     }
 }
 
-if (sf("LoadForm")) sf("LoadForm").addEventListener("submit", loadForm);
 
-if (sf("DemoButton")) {
-    sf("DemoButton").addEventListener("click", () => {
-        sf("FormUrl").value = "http://127.0.0.1:8000/demo_test_form.html";
-    });
-}
+// -----------------------------------------------------
+// 14. VALIDATE ANSWER
+// -----------------------------------------------------
 
-if (sf("ReadQuestion")) {
-    sf("ReadQuestion").addEventListener("click", async () => {
-        if (fields[current]) await speak(await askForQuestion(fields[current]));
-    });
-}
+async function checkAnswer() {
+    stopListening();
 
-if (sf("SpeakAnswer")) {
-    sf("SpeakAnswer").addEventListener("click", async () => {
-        try {
-            const value = await listenOnce();
-            sf("Answer").value = value;
-        } catch (error) {
-            showMessage(error.message);
+    clearMessage();
+
+    const field = currentField();
+
+    if (!field) return;
+
+    const value = getCurrentAnswer();
+
+    if (field.required && !value) {
+        setMessage(msg("required"));
+        speak(msg("required"));
+        return;
+    }
+
+    try {
+        let finalValue = value;
+
+        // Translate ordinary text answers into English.
+        // Protected types are left unchanged by the backend.
+        if (value && !["checkbox", "select"].includes(field.type)) {
+            finalValue = await translateText(
+                value,
+                "answer",
+                field
+            );
         }
-    });
-}
 
-if (sf("Check")) {
-    sf("Check").addEventListener("click", async () => {
-        if (!fields[current]) return;
-        answers[current] = sf("Answer").value.trim();
-        await runConversationForField(fields[current]);
-    });
-}
+        // IMPORTANT:
+        // The backend expects flattened field properties.
+        const result = await postJSON(
+            "/smart-form-assistant/validate",
+            {
+                value: finalValue,
+                label: field.label,
+                type: field.type,
+                required: field.required,
+                language: languageCode()
+            }
+        );
 
-if (sf("Confirm")) {
-    sf("Confirm").addEventListener("click", async () => {
-        sf("ConfirmBox").classList.add("sf-hidden");
-        if (current < fields.length - 1) {
-            current++;
-            await renderQuestion();
-        } else {
-            showReview();
+        if (!result.valid) {
+            setMessage(result.message);
+            speak(result.message);
+            return;
         }
-    });
+
+        answers[current] = finalValue;
+        lastValidated = true;
+
+        showConfirmation(finalValue);
+
+    } catch (error) {
+        console.error(error);
+
+        setMessage(error.message);
+        speak(error.message);
+    }
 }
 
-if (sf("Edit")) {
-    sf("Edit").addEventListener("click", () => {
-        sf("ConfirmBox").classList.add("sf-hidden");
-        sf("Answer").focus();
-    });
+
+// -----------------------------------------------------
+// 15. SHOW CONFIRMATION
+// -----------------------------------------------------
+
+async function showConfirmation(value) {
+    hideElement(sf("QuestionCard"));
+    showElement(sf("ConfirmBox"));
+
+    const confirmText = sf("ConfirmText");
+
+    let displayValue = value;
+
+    if (confirmText) {
+        confirmText.textContent =
+            `Your answer: ${displayValue}`;
+    }
+
+    const editButton = sf("Edit");
+    const confirmButton = sf("Confirm");
+
+    if (editButton) {
+        editButton.textContent = msg("edit");
+    }
+
+    if (confirmButton) {
+        confirmButton.textContent = msg("confirm");
+    }
+
+    const spokenMessage =
+        languageCode() === "en"
+            ? `You entered ${displayValue}. Is this correct?`
+            : await translateText(
+                `You entered ${displayValue}. Is this correct?`,
+                "question",
+                { type: "text" }
+            );
+
+    speak(spokenMessage);
 }
 
-if (sf("Back")) {
-    sf("Back").addEventListener("click", async () => {
-        if (current > 0) {
-            current--;
-            await renderQuestion();
+
+// -----------------------------------------------------
+// 16. EDIT CURRENT ANSWER
+// -----------------------------------------------------
+
+function editAnswer() {
+    hideElement(sf("ConfirmBox"));
+    showElement(sf("QuestionCard"));
+
+    renderAnswerInput(currentField());
+
+    const input = document.getElementById("sfAnswerInput");
+
+    if (input) {
+        input.focus();
+    }
+}
+// -----------------------------------------------------
+// 17. MOVE TO NEXT QUESTION
+// -----------------------------------------------------
+
+function nextQuestion() {
+    stopListening();
+
+    current++;
+
+    if (current >= fields.length) {
+        showReview();
+    } else {
+        displayQuestion();
+    }
+}
+
+
+// -----------------------------------------------------
+// 18. MOVE TO PREVIOUS QUESTION
+// -----------------------------------------------------
+
+function previousQuestion() {
+    if (current <= 0) return;
+
+    stopListening();
+
+    current--;
+
+    displayQuestion();
+}
+
+
+// -----------------------------------------------------
+// 19. REVIEW ANSWERS
+// -----------------------------------------------------
+
+function showReview() {
+    stopListening();
+
+    hideElement(sf("QuestionCard"));
+    hideElement(sf("ConfirmBox"));
+    showElement(sf("Review"));
+
+    updateProgress();
+
+    const reviewList = sf("ReviewList");
+
+    if (!reviewList) return;
+
+    reviewList.innerHTML = "";
+
+    fields.forEach((field, index) => {
+
+        const item = document.createElement("div");
+        item.className = "sf-review-item";
+
+        const title = document.createElement("h4");
+        title.textContent = field.label;
+
+        const answer = document.createElement("p");
+        answer.textContent = answers[index] ?? "";
+
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.textContent = msg("editAnswer");
+
+        editButton.addEventListener("click", () => {
+            current = index;
+            displayQuestion();
+        });
+
+        item.appendChild(title);
+        item.appendChild(answer);
+        item.appendChild(editButton);
+
+        reviewList.appendChild(item);
+    });
+
+    const finishButton = sf("Finish");
+
+    if (finishButton) {
+        finishButton.textContent = msg("finish");
+    }
+
+    const reviewBack = sf("ReviewBack");
+
+    if (reviewBack) {
+        reviewBack.textContent = msg("back");
+    }
+}
+
+
+// -----------------------------------------------------
+// 20. SUBMIT APPLICATION
+// -----------------------------------------------------
+
+async function finishApplication() {
+    stopListening();
+
+    const finishMessage = sf("FinishMessage");
+    const finishButton = sf("Finish");
+
+    if (finishMessage) {
+        finishMessage.textContent = msg("submitting");
+    }
+
+    if (finishButton) {
+        finishButton.disabled = true;
+    }
+
+    try {
+        const result = await postJSON(
+            "/smart-form-assistant/submit",
+            {
+                url: formUrl,
+                fields: fields,
+                answers: answers
+            }
+        );
+
+        if (finishMessage) {
+            finishMessage.textContent =
+                result.message || msg("submitted");
         }
-    });
-}
 
-if (sf("ReviewBack")) {
-    sf("ReviewBack").addEventListener("click", async () => {
-        current = fields.length - 1;
-        await renderQuestion();
-    });
-}
+        speak(result.message || msg("submitted"));
 
-if (sf("ChangeForm")) {
-    sf("ChangeForm").addEventListener("click", () => {
-        stopListening();
-        window.speechSynthesis?.cancel();
-        sf("Assistant").classList.add("sf-hidden");
-    });
-}
+    } catch (error) {
+        console.error(error);
 
-if (sf("Language")) {
-    sf("Language").addEventListener("change", async () => {
-        stopListening();
-        window.speechSynthesis?.cancel();
-
-        if (fields.length && current < fields.length) {
-            await renderQuestion();
+        if (finishMessage) {
+            finishMessage.textContent = error.message;
         }
-    });
+
+        speak(error.message);
+
+    } finally {
+        if (finishButton) {
+            finishButton.disabled = false;
+        }
+    }
 }
+
+
+// -----------------------------------------------------
+// 21. LOAD FORM
+// -----------------------------------------------------
+
+async function loadForm() {
+    stopListening();
+
+    clearMessage();
+
+    const urlInput = sf("FormUrl");
+    const loadError = sf("LoadError");
+    const loadButton = sf("LoadButton");
+
+    formUrl = urlInput?.value.trim() || "";
+
+    if (!formUrl) {
+        if (loadError) {
+            loadError.textContent = "Please enter a form URL.";
+        }
+        return;
+    }
+
+    if (loadButton) {
+        loadButton.disabled = true;
+        loadButton.textContent = "Loading...";
+    }
+
+    if (loadError) {
+        loadError.textContent = "";
+    }
+
+    try {
+        const result = await postJSON(
+            "/smart-form-assistant/analyze",
+            {
+                url: formUrl
+            }
+        );
+
+        fields = result.fields || [];
+
+        if (!fields.length) {
+            throw new Error(msg("noFields"));
+        }
+
+        answers = fields.map(() => "");
+        current = 0;
+        translationCache = {};
+
+        hideElement(sf("LoadForm"));
+        showElement(sf("Assistant"));
+
+        const summary = sf("Summary");
+
+        if (summary) {
+            summary.textContent =
+                `${fields.length} form fields detected.`;
+        }
+
+        displayQuestion();
+
+    } catch (error) {
+        console.error(error);
+
+        if (loadError) {
+            loadError.textContent = error.message || msg("loadError");
+        }
+
+    } finally {
+        if (loadButton) {
+            loadButton.disabled = false;
+            loadButton.textContent = "Load Form";
+        }
+    }
+}
+
+
+// -----------------------------------------------------
+// 22. LOAD DEMO FORM
+// -----------------------------------------------------
+
+function loadDemoForm() {
+    const urlInput = sf("FormUrl");
+
+    if (!urlInput) return;
+
+    urlInput.value =
+        "http://127.0.0.1:8000/demo_test_form.html";
+
+    loadForm();
+}
+
+
+// -----------------------------------------------------
+// 23. CHANGE LANGUAGE
+// -----------------------------------------------------
+
+function changeLanguage() {
+    stopListening();
+
+    translationCache = {};
+
+    if (fields.length > 0 && current < fields.length) {
+        displayQuestion();
+    } else if (sf("Review")?.style.display !== "none") {
+        showReview();
+    }
+}
+
+
+// -----------------------------------------------------
+// 24. INITIALIZE EVENT LISTENERS
+// -----------------------------------------------------
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    sf("LoadButton")?.addEventListener(
+        "click",
+        loadForm
+    );
+
+    sf("DemoButton")?.addEventListener(
+        "click",
+        loadDemoForm
+    );
+
+    sf("SpeakAnswer")?.addEventListener(
+        "click",
+        listenOnce
+    );
+
+    sf("Check")?.addEventListener(
+        "click",
+        checkAnswer
+    );
+
+    sf("Edit")?.addEventListener(
+        "click",
+        editAnswer
+    );
+
+    sf("Confirm")?.addEventListener(
+        "click",
+        nextQuestion
+    );
+
+    sf("Back")?.addEventListener(
+        "click",
+        previousQuestion
+    );
+
+    sf("ReviewBack")?.addEventListener(
+        "click",
+        function() {
+            current = Math.max(0, fields.length - 1);
+            displayQuestion();
+        }
+    );
+
+    sf("Finish")?.addEventListener(
+        "click",
+        finishApplication
+    );
+
+    sf("ChangeForm")?.addEventListener(
+        "click",
+        function() {
+            stopListening();
+
+            fields = [];
+            answers = [];
+            current = 0;
+
+            hideElement(sf("Assistant"));
+            showElement(sf("LoadForm"));
+        }
+    );
+
+    sf("Language")?.addEventListener(
+        "change",
+        changeLanguage
+    );
+
+    // Hide sections that should not appear initially.
+    hideElement(sf("Assistant"));
+    hideElement(sf("Review"));
+    hideElement(sf("ConfirmBox"));
+
+});

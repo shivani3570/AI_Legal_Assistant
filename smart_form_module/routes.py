@@ -1,3 +1,4 @@
+
 import os
 import re
 from urllib.parse import urlparse
@@ -7,6 +8,12 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from flask import Blueprint, render_template, request, jsonify
 from groq import Groq
+from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
+
+
+# --------------------------------------------------
+# CONFIGURATION
+# --------------------------------------------------
 
 load_dotenv()
 
@@ -15,248 +22,561 @@ smart_form_bp = Blueprint(
     __name__,
     template_folder="templates",
     static_folder="static",
-    static_url_path="/smart-form-static",
+    static_url_path="/smart-form-static"
 )
 
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GROQ_MODEL = "openai/gpt-oss-120b"
 
-LANGUAGES = {
-    "en": "English", "kn": "Kannada", "hi": "Hindi",
-    "ta": "Tamil", "te": "Telugu",
-    "english": "English", "kannada": "Kannada",
-    "hindi": "Hindi", "tamil": "Tamil", "telugu": "Telugu",
+groq_client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
+
+SUPPORTED_LANGUAGES = {
+    "en": "English",
+    "english": "English",
+    "kn": "Kannada",
+    "kannada": "Kannada",
+    "hi": "Hindi",
+    "hindi": "Hindi"
 }
 
 PROTECTED_TYPES = {
-    "email", "tel", "number", "range", "date", "time",
-    "datetime-local", "month", "week", "url", "password",
+    "email", "tel", "number", "range", "date",
+    "time", "datetime-local", "month", "week",
+    "url", "password", "file"
 }
 
 
+# --------------------------------------------------
+# COMMON HELPERS
+# --------------------------------------------------
+
 def normalize_language(language):
-    value = str(language or "English").strip()
-    return LANGUAGES.get(value.lower(), value)
+    key = str(language or "en").strip().lower()
+    return SUPPORTED_LANGUAGES.get(key, "English")
 
 
-def ask_groq(instructions, prompt):
-    api_key = os.getenv("GROQ_API_KEY", "").strip()
-    if not api_key:
-        raise RuntimeError("GROQ_API_KEY is missing from .env")
+def language_code(language):
+    name = normalize_language(language)
 
-    client = Groq(api_key=api_key)
-    result = client.chat.completions.create(
+    return {
+        "English": "en",
+        "Kannada": "kn",
+        "Hindi": "hi"
+    }[name]
+
+
+def valid_http_url(url):
+    if not isinstance(url, str):
+        return False
+
+    url = url.strip()
+
+    try:
+        parsed = urlparse(url)
+        return parsed.scheme in ("http", "https") and bool(parsed.netloc)
+    except Exception:
+        return False
+
+
+def ask_groq(prompt):
+    if not groq_client:
+        raise RuntimeError(
+            "GROQ_API_KEY is missing. Add it to your .env file."
+        )
+
+    response = groq_client.chat.completions.create(
         model=GROQ_MODEL,
         messages=[
-            {"role": "system", "content": instructions},
-            {"role": "user", "content": prompt},
+            {
+                "role": "system",
+                "content": (
+                    "You are a helpful multilingual assistant. "
+                    "Follow the user's instructions carefully. "
+                    "Return only the requested text."
+                )
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
         ],
-        temperature=0.1,
+        temperature=0.2,
+        max_tokens=300
     )
-    return (result.choices[0].message.content or "").strip()
 
+    return response.choices[0].message.content.strip()
+
+
+def get_json():
+    return request.get_json(silent=True) or {}
+
+
+def api_error(message, status=400):
+    return jsonify({
+        "success": False,
+        "error": message
+    }), status
+
+
+# --------------------------------------------------
+# FORM FIELD EXTRACTION
+# --------------------------------------------------
 
 def extract_fields(url):
-    parsed = urlparse(url)
-    if parsed.scheme not in ("http", "https") or not parsed.netloc:
-        raise ValueError("Enter a valid HTTP or HTTPS URL.")
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 Chrome/120.0 Safari/537.36"
+        )
+    }
 
     response = requests.get(
         url,
-        headers={"User-Agent": "Mozilla/5.0"},
-        timeout=15,
+        headers=headers,
+        timeout=20
     )
     response.raise_for_status()
 
     soup = BeautifulSoup(response.text, "html.parser")
-    form = soup.find("form")
-    scope = form if form else soup
+
     fields = []
 
-    for element in scope.select("input, textarea, select"):
-        tag = element.name.lower()
-        kind = (element.get("type") or tag).lower()
+    elements = soup.select("input, textarea, select")
 
-        if kind in {"hidden", "submit", "button", "reset", "image", "file"}:
+    for index, element in enumerate(elements):
+
+        field_type = (
+            element.get("type", "text").lower()
+            if element.name == "input"
+            else element.name.lower()
+        )
+
+        if field_type in {
+            "hidden", "submit", "button", "reset",
+            "image", "file"
+        }:
             continue
 
         field_id = element.get("id", "")
         field_name = element.get("name", "")
-        label_element = (
-            soup.find("label", attrs={"for": field_id})
-            if field_id else None
-        )
-        parent_label = element.find_parent("label")
 
-        label = (
-            label_element.get_text(" ", strip=True)
-            if label_element else
-            parent_label.get_text(" ", strip=True)
-            if parent_label else
-            element.get("aria-label")
-            or element.get("placeholder")
-            or field_name
-            or field_id
-            or f"Field {len(fields) + 1}"
-        )
+        label = ""
+
+        if field_id:
+            label_element = soup.find(
+                "label",
+                attrs={"for": field_id}
+            )
+
+            if label_element:
+                label = label_element.get_text(" ", strip=True)
+
+        if not label:
+            parent_label = element.find_parent("label")
+
+            if parent_label:
+                label = parent_label.get_text(" ", strip=True)
+
+        if not label:
+            label = (
+                element.get("aria-label")
+                or element.get("placeholder")
+                or field_name
+                or field_id
+                or f"Field {index + 1}"
+            )
 
         options = []
-        if tag == "select":
-            options = [
-                {
-                    "value": option.get("value", option.get_text(strip=True)),
-                    "text": option.get_text(" ", strip=True),
-                }
-                for option in element.find_all("option")
-            ]
+
+        if element.name == "select":
+            for option in element.find_all("option"):
+                value = option.get("value", "")
+                text = option.get_text(" ", strip=True)
+
+                if text:
+                    options.append({
+                        "value": value if value else text,
+                        "text": text
+                    })
 
         fields.append({
             "id": field_id,
             "name": field_name,
             "label": label,
-            "type": "textarea" if tag == "textarea"
-                    else "select" if tag == "select"
-                    else kind,
+            "type": field_type,
             "required": element.has_attr("required"),
             "placeholder": element.get("placeholder", ""),
-            "options": options,
+            "options": options
         })
 
-    if not fields:
-        raise ValueError("No standard HTML fields were found.")
-
     return fields
-@smart_form_bp.get("/smart-form-assistant")
+
+
+# --------------------------------------------------
+# MAIN PAGE
+# --------------------------------------------------
+
+@smart_form_bp.route("/smart-form-assistant", methods=["GET"])
 def smart_form_home():
     return render_template("smart_form_assistant_fresh.html")
 
 
-@smart_form_bp.post("/smart-form-assistant/analyze")
-def smart_form_analyze():
-    data = request.get_json(silent=True) or {}
+# --------------------------------------------------
+# ANALYZE FORM
+# --------------------------------------------------
+
+@smart_form_bp.route(
+    "/smart-form-assistant/analyze",
+    methods=["POST"]
+)
+def analyze_form():
+
+    data = get_json()
     url = str(data.get("url", "")).strip()
+
+    if not valid_http_url(url):
+        return api_error("Please enter a valid HTTP or HTTPS form URL.")
 
     try:
         fields = extract_fields(url)
-        return jsonify(
-            success=True, url=url, fields=fields, count=len(fields)
+
+        if not fields:
+            return api_error(
+                "No supported form fields were found on this webpage.",
+                422
+            )
+
+        return jsonify({
+            "success": True,
+            "url": url,
+            "fields": fields,
+            "count": len(fields)
+        })
+
+    except requests.RequestException as error:
+        return api_error(
+            f"Unable to open the form URL: {str(error)}",
+            502
         )
-    except ValueError as exc:
-        return jsonify(success=False, error=str(exc)), 400
-    except requests.exceptions.RequestException:
-        return jsonify(
-            success=False, error="Could not open the form URL."
-        ), 400
-    except Exception as exc:
-        print("Form analysis error:", repr(exc))
-        return jsonify(
-            success=False, error="Could not analyze this form."
-        ), 500
+
+    except Exception as error:
+        return api_error(
+            f"Unable to analyze the form: {str(error)}",
+            500
+        )
 
 
-@smart_form_bp.post("/smart-form-assistant/translate")
-def smart_form_translate():
-    data = request.get_json(silent=True) or {}
+# --------------------------------------------------
+# TRANSLATE QUESTION OR ANSWER
+# --------------------------------------------------
+
+@smart_form_bp.route(
+    "/smart-form-assistant/translate",
+    methods=["POST"]
+)
+def translate_text():
+
+    data = get_json()
 
     text = str(data.get("text", "")).strip()
-    language = normalize_language(data.get("language", "English"))
-    target = normalize_language(data.get("targetLanguage", "English"))
+    language = normalize_language(data.get("language", "en"))
     mode = str(data.get("mode", "question")).lower()
     field_type = str(data.get("fieldType", "text")).lower()
-    label = str(data.get("fieldLabel", "")).strip()
+    field_label = str(data.get("fieldLabel", "")).strip()
 
     if not text:
-        return jsonify(success=False, error="Text is required."), 400
+        return api_error("Text is required.")
 
-    if mode not in {"question", "answer"}:
-        return jsonify(success=False, error="Invalid translation mode."), 400
+    # Do not translate protected values such as email,
+    # phone numbers, dates, passwords or URLs.
+    if field_type in PROTECTED_TYPES:
+        return jsonify({
+            "success": True,
+            "translated": text
+        })
 
-    if mode == "answer" and (
-        field_type in PROTECTED_TYPES
-        or re.search(r"email|e-mail|phone|mobile", label, re.I)
-    ):
-        return jsonify(success=True, translated=text)
-
-    if mode == "question":
-        instructions = (
-            "You are a friendly voice assistant helping a person fill "
-            "out a form. Translate the question into natural, simple "
-            "spoken language in the requested language. Use the correct "
-            "native script. Kannada must use Kannada script; Hindi must "
-            "use Devanagari. Return only the question."
-        )
-        prompt = f"Language: {language}\nQuestion: {text}"
-
-    else:
-        is_name = bool(re.search(
-            r"name|ಹೆಸರು|नाम|பெயர்|పేరు", label, re.I
-        ))
-
-        if is_name:
-            instructions = (
-                "Convert the person's spoken name into English/Latin "
-                "letters by transliteration, not translation. For example, "
-                "ಯೋಗಿತಾ becomes Yogitha. Return only the name, without "
-                "'my name is'. Do not invent extra information."
-            )
-        else:
-            instructions = (
-                "Convert the user's answer into the destination language. "
-                "Translate ordinary descriptive answers when English is "
-                "the destination. Preserve meaning and do not invent "
-                "information. Return only the converted answer."
-            )
-
-        prompt = (
-            f"Spoken language: {language}\n"
-            f"Destination language: {target}\n"
-            f"Field label: {label}\n"
-            f"Field type: {field_type}\n"
-            f"User answer: {text}"
-        )
+    if language == "English":
+        return jsonify({
+            "success": True,
+            "translated": text
+        })
 
     try:
-        converted = ask_groq(instructions, prompt)
-        if not converted:
-            raise RuntimeError("Empty AI response.")
-        return jsonify(success=True, translated=converted)
-    except Exception as exc:
-        print("Translation error:", repr(exc))
-        return jsonify(
-            success=False,
-            error="Translation failed. Check your Groq API key and model."
-        ), 502
+        if mode == "question":
+
+            prompt = f"""
+Translate the following form question into {language}.
+
+Form question: {text}
+
+Instructions:
+- Keep the meaning accurate.
+- Use simple, natural language.
+- Make it easy to understand when spoken aloud.
+- Do not add explanations.
+- Return only the translated question.
+"""
+
+        elif mode == "answer":
+
+            prompt = f"""
+The user entered this answer for a form field.
+
+Field label: {field_label}
+User answer: {text}
+
+Convert the answer into clear English only if translation is needed.
+
+Instructions:
+- Preserve the original meaning.
+- Do not add information.
+- Do not change numbers, dates, email addresses or phone numbers.
+- For a person's name, preserve the name and use English letters.
+- Return only the final answer.
+"""
+
+        else:
+            return api_error("Invalid translation mode.")
+
+        translated = ask_groq(prompt)
+
+        return jsonify({
+            "success": True,
+            "translated": translated
+        })
+
+    except Exception as error:
+        return api_error(
+            f"Translation failed: {str(error)}",
+            502
+        )
 
 
-@smart_form_bp.post("/smart-form-assistant/validate")
-def smart_form_validate():
-    data = request.get_json(silent=True) or {}
-    label = str(data.get("label", "Field")).strip()
+# --------------------------------------------------
+# VALIDATE ANSWER
+# --------------------------------------------------
+
+@smart_form_bp.route(
+    "/smart-form-assistant/validate",
+    methods=["POST"]
+)
+def validate_answer():
+
+    data = get_json()
+
     value = str(data.get("value", "")).strip()
-    kind = str(data.get("type", "text")).lower()
-    required = bool(data.get("required"))
+    label = str(data.get("label", "Field")).strip()
+    field_type = str(data.get("type", "text")).lower()
+    required = bool(data.get("required", False))
+    language = normalize_language(data.get("language", "en"))
+
+    messages = {
+        "English": {
+            "required": f"Please enter {label}.",
+            "name": "Please enter a valid name, not a phone number or email address.",
+            "email": "Please enter a valid email address.",
+            "phone": "Please enter a valid phone number.",
+            "number": "Please enter a valid number.",
+            "valid": "Your answer looks valid."
+        },
+        "Kannada": {
+            "required": f"ದಯವಿಟ್ಟು {label} ನಮೂದಿಸಿ.",
+            "name": "ದಯವಿಟ್ಟು ಸರಿಯಾದ ಹೆಸರನ್ನು ನಮೂದಿಸಿ. ಫೋನ್ ಸಂಖ್ಯೆ ಅಥವಾ ಇಮೇಲ್ ನಮೂದಿಸಬೇಡಿ.",
+            "email": "ದಯವಿಟ್ಟು ಸರಿಯಾದ ಇಮೇಲ್ ವಿಳಾಸವನ್ನು ನಮೂದಿಸಿ.",
+            "phone": "ದಯವಿಟ್ಟು ಸರಿಯಾದ ಫೋನ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ.",
+            "number": "ದಯವಿಟ್ಟು ಸರಿಯಾದ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ.",
+            "valid": "ನಿಮ್ಮ ಉತ್ತರ ಸರಿಯಾಗಿದೆ."
+        },
+        "Hindi": {
+            "required": f"कृपया {label} दर्ज करें।",
+            "name": "कृपया सही नाम दर्ज करें, फोन नंबर या ईमेल नहीं।",
+            "email": "कृपया सही ईमेल पता दर्ज करें।",
+            "phone": "कृपया सही फोन नंबर दर्ज करें।",
+            "number": "कृपया सही संख्या दर्ज करें।",
+            "valid": "आपका उत्तर सही लग रहा है।"
+        }
+    }
+
+    msg = messages[language]
+    error_message = None
 
     if required and not value:
-        return jsonify(valid=False, message=f"{label} is required.")
+        error_message = msg["required"]
 
-    if not value:
-        return jsonify(valid=True, message="Optional field is empty.")
+    elif value and field_type in ("text", "textarea"):
 
-    if (kind == "email" or "email" in label.lower()):
-        if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", value):
-            return jsonify(
-                valid=False,
-                message="Please enter a valid email address."
+        label_lower = label.lower()
+
+        is_name_field = any(
+            word in label_lower
+            for word in (
+                "name", "first name", "last name",
+                "full name", "applicant"
+            )
+        )
+
+        if is_name_field:
+            contains_email = bool(
+                re.search(r"[^@\s]+@[^@\s]+\.[^@\s]+", value)
             )
 
-    if kind in {"number", "range"}:
+            contains_phone = bool(
+                re.fullmatch(r"[\d\s()+-]{7,}", value)
+            )
+
+            if contains_email or contains_phone:
+                error_message = msg["name"]
+
+    elif value and field_type == "email":
+
+        email_pattern = r"^[^@\s]+@[^@\s]+\.[^@\s]+$"
+
+        if not re.fullmatch(email_pattern, value):
+            error_message = msg["email"]
+
+    elif value and field_type == "tel":
+
+        digits = re.sub(r"\D", "", value)
+
+        if len(digits) < 7 or len(digits) > 15:
+            error_message = msg["phone"]
+
+    elif value and field_type == "number":
+
         try:
             float(value)
         except ValueError:
-            return jsonify(valid=False, message="Enter a valid number.")
+            error_message = msg["number"]
 
-    if kind == "tel" or re.search(r"phone|mobile|telephone", label, re.I):
-        digits = re.sub(r"\D", "", value)
-        if not 7 <= len(digits) <= 15:
-            return jsonify(valid=False, message="Enter a valid phone number.")
+    return jsonify({
+        "success": True,
+        "valid": error_message is None,
+        "message": error_message or msg["valid"],
+        "value": value
+    })
 
-    return jsonify(valid=True, message=f"{label} looks okay.")
+
+# --------------------------------------------------
+# SUBMIT FORM USING PLAYWRIGHT
+# --------------------------------------------------
+
+@smart_form_bp.route(
+    "/smart-form-assistant/submit",
+    methods=["POST"]
+)
+def submit_form():
+
+    data = get_json()
+
+    url = str(data.get("url", "")).strip()
+    fields = data.get("fields", [])
+    answers = data.get("answers", [])
+
+    if not valid_http_url(url):
+        return api_error("Invalid form URL.")
+
+    if not isinstance(fields, list) or not isinstance(answers, list):
+        return api_error("Invalid form submission data.")
+
+    if len(fields) != len(answers):
+        return api_error("The number of answers does not match the fields.")
+
+    try:
+        with sync_playwright() as playwright:
+
+            browser = playwright.chromium.launch(headless=True)
+
+            page = browser.new_page()
+
+            page.goto(
+                url,
+                wait_until="domcontentloaded",
+                timeout=30000
+            )
+
+            for field, answer in zip(fields, answers):
+
+                field_id = str(field.get("id", "")).strip()
+                field_name = str(field.get("name", "")).strip()
+                field_type = str(field.get("type", "text")).lower()
+
+                value = "" if answer is None else str(answer)
+
+                locator = None
+
+                if field_id:
+                    candidate = page.locator(
+                        f"#{field_id}"
+                    ).first
+
+                    if candidate.count() > 0:
+                        locator = candidate
+
+                if locator is None and field_name:
+                    candidate = page.locator(
+                        f'[name="{field_name}"]'
+                    ).first
+
+                    if candidate.count() > 0:
+                        locator = candidate
+
+                if locator is None:
+                    continue
+
+                try:
+                    if field_type == "select":
+                        locator.select_option(value)
+
+                    elif field_type == "checkbox":
+                        if value.lower() in ("true", "1", "yes", "on"):
+                            locator.check()
+                        else:
+                            locator.uncheck()
+
+                    elif field_type == "radio":
+                        if value.lower() in ("true", "1", "yes", "on"):
+                            locator.check()
+
+                    elif field_type not in ("button", "submit", "reset"):
+                        locator.fill(value)
+
+                except Exception:
+                    # Skip fields that cannot be filled by this
+                    # basic HTML form automation.
+                    continue
+
+            submit_button = page.locator(
+                'button[type="submit"], input[type="submit"]'
+            ).first
+
+            if submit_button.count() > 0:
+                submit_button.click(timeout=10000)
+            else:
+                browser.close()
+                return api_error(
+                    "Could not find a standard submit button on this form.",
+                    422
+                )
+
+            page.wait_for_timeout(1500)
+
+            final_url = page.url
+            browser.close()
+
+        return jsonify({
+            "success": True,
+            "message": "Form submission process completed.",
+            "final_url": final_url
+        })
+
+    except PlaywrightTimeoutError:
+        return api_error(
+            "The form took too long to load or submit.",
+            504
+        )
+
+    except Exception as error:
+        return api_error(
+            f"Form submission failed: {str(error)}",
+            500
+        )

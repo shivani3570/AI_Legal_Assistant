@@ -1,0 +1,1079 @@
+
+// =====================================================
+// AI LEGAL ASSISTANT - SMART FORM ASSISTANT
+// Languages: English, Kannada and Hindi
+// =====================================================
+
+
+// -----------------------------------------------------
+// 1. ELEMENT HELPER
+// -----------------------------------------------------
+
+const sf = (id) => document.getElementById("sf" + id);
+
+
+// -----------------------------------------------------
+// 2. LANGUAGE CONFIGURATION
+// -----------------------------------------------------
+
+const LANGUAGE_CONFIG = {
+    en: {
+        name: "English",
+        locale: "en-IN"
+    },
+    kn: {
+        name: "Kannada",
+        locale: "kn-IN"
+    },
+    hi: {
+        name: "Hindi",
+        locale: "hi-IN"
+    }
+};
+
+
+const UI_TEXT = {
+    en: {
+        required: "Please enter your answer.",
+        speak: "Speak answer",
+        listening: "Listening... Please speak now.",
+        notSupported: "Voice input is not supported in this browser. Please type your answer.",
+        questionError: "Unable to load the question.",
+        check: "Check Answer",
+        valid: "Your answer looks valid.",
+        edit: "Edit",
+        confirm: "Yes, continue",
+        back: "Back",
+        review: "Review your answers",
+        finish: "Finish / Submit Application",
+        submitting: "Submitting your application...",
+        submitted: "Submission process completed.",
+        loadError: "Unable to load the form.",
+        noFields: "No form fields were found.",
+        selectOption: "Select an option",
+        requiredField: "Required field",
+        optionalField: "Optional field",
+        answerPlaceholder: "Enter your answer here",
+        reviewTitle: "Your answers",
+        editAnswer: "Edit answer",
+        formLoaded: "Form loaded successfully.",
+        question: "Question",
+        of: "of",
+        chooseOption: "Please select an option."
+    },
+
+    kn: {
+        required: "ದಯವಿಟ್ಟು ನಿಮ್ಮ ಉತ್ತರವನ್ನು ನಮೂದಿಸಿ.",
+        speak: "ಉತ್ತರವನ್ನು ಮಾತನಾಡಿ",
+        listening: "ಕೇಳಲಾಗುತ್ತಿದೆ... ಈಗ ಮಾತನಾಡಿ.",
+        notSupported: "ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಧ್ವನಿ ಇನ್‌ಪುಟ್ ಲಭ್ಯವಿಲ್ಲ. ದಯವಿಟ್ಟು ಟೈಪ್ ಮಾಡಿ.",
+        questionError: "ಪ್ರಶ್ನೆಯನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+        check: "ಉತ್ತರ ಪರಿಶೀಲಿಸಿ",
+        valid: "ನಿಮ್ಮ ಉತ್ತರ ಸರಿಯಾಗಿದೆ.",
+        edit: "ತಿದ್ದುಪಡಿ ಮಾಡಿ",
+        confirm: "ಹೌದು, ಮುಂದುವರಿಸಿ",
+        back: "ಹಿಂದಕ್ಕೆ",
+        review: "ನಿಮ್ಮ ಉತ್ತರಗಳನ್ನು ಪರಿಶೀಲಿಸಿ",
+        finish: "ಮುಗಿಸಿ / ಅರ್ಜಿ ಸಲ್ಲಿಸಿ",
+        submitting: "ನಿಮ್ಮ ಅರ್ಜಿಯನ್ನು ಸಲ್ಲಿಸಲಾಗುತ್ತಿದೆ...",
+        submitted: "ಸಲ್ಲಿಕೆ ಪ್ರಕ್ರಿಯೆ ಪೂರ್ಣಗೊಂಡಿದೆ.",
+        loadError: "ಫಾರ್ಮ್ ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+        noFields: "ಯಾವುದೇ ಫಾರ್ಮ್ ಕ್ಷೇತ್ರಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+        selectOption: "ಒಂದು ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ",
+        requiredField: "ಕಡ್ಡಾಯ ಕ್ಷೇತ್ರ",
+        optionalField: "ಐಚ್ಛಿಕ ಕ್ಷೇತ್ರ",
+        answerPlaceholder: "ನಿಮ್ಮ ಉತ್ತರವನ್ನು ಇಲ್ಲಿ ನಮೂದಿಸಿ",
+        reviewTitle: "ನಿಮ್ಮ ಉತ್ತರಗಳು",
+        editAnswer: "ಉತ್ತರ ತಿದ್ದುಪಡಿ",
+        formLoaded: "ಫಾರ್ಮ್ ಯಶಸ್ವಿಯಾಗಿ ಲೋಡ್ ಆಗಿದೆ.",
+        question: "ಪ್ರಶ್ನೆ",
+        of: "ರಲ್ಲಿ",
+        chooseOption: "ದಯವಿಟ್ಟು ಒಂದು ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ."
+    },
+
+    hi: {
+        required: "कृपया अपना उत्तर दर्ज करें।",
+        speak: "उत्तर बोलें",
+        listening: "सुन रहा है... अब बोलें।",
+        notSupported: "इस ब्राउज़र में वॉइस इनपुट उपलब्ध नहीं है। कृपया टाइप करें।",
+        questionError: "प्रश्न लोड नहीं हो सका।",
+        check: "उत्तर जांचें",
+        valid: "आपका उत्तर सही लग रहा है।",
+        edit: "संपादित करें",
+        confirm: "हाँ, आगे बढ़ें",
+        back: "पीछे जाएँ",
+        review: "अपने उत्तरों की समीक्षा करें",
+        finish: "समाप्त करें / आवेदन जमा करें",
+        submitting: "आपका आवेदन जमा किया जा रहा है...",
+        submitted: "जमा करने की प्रक्रिया पूरी हो गई।",
+        loadError: "फॉर्म लोड नहीं हो सका।",
+        noFields: "कोई फॉर्म फ़ील्ड नहीं मिला।",
+        selectOption: "एक विकल्प चुनें",
+        requiredField: "अनिवार्य फ़ील्ड",
+        optionalField: "वैकल्पिक फ़ील्ड",
+        answerPlaceholder: "अपना उत्तर यहाँ दर्ज करें",
+        reviewTitle: "आपके उत्तर",
+        editAnswer: "उत्तर संपादित करें",
+        formLoaded: "फॉर्म सफलतापूर्वक लोड हो गया।",
+        question: "प्रश्न",
+        of: "में से",
+        chooseOption: "कृपया एक विकल्प चुनें।"
+    }
+};
+
+
+// -----------------------------------------------------
+// 3. APPLICATION STATE
+// -----------------------------------------------------
+
+let fields = [];
+let answers = [];
+let current = 0;
+let formUrl = "";
+
+let recognition = null;
+let translationCache = {};
+let lastValidated = false;
+
+
+// -----------------------------------------------------
+// 4. COMMON HELPERS
+// -----------------------------------------------------
+
+function languageCode() {
+    return sf("Language")?.value || "en";
+}
+
+
+function languageInfo() {
+    return LANGUAGE_CONFIG[languageCode()] || LANGUAGE_CONFIG.en;
+}
+
+
+function msg(key) {
+    const language = languageCode();
+
+    return (
+        UI_TEXT[language]?.[key] ||
+        UI_TEXT.en[key] ||
+        key
+    );
+}
+
+
+function setMessage(text, success = false) {
+    const element = sf("FieldMessage");
+
+    if (!element) return;
+
+    element.textContent = text;
+    element.style.color = success ? "green" : "#c0392b";
+}
+
+
+function clearMessage() {
+    const element = sf("FieldMessage");
+
+    if (element) {
+        element.textContent = "";
+    }
+}
+
+
+function showElement(element) {
+    if (element) {
+        element.style.display = "";
+    }
+}
+
+
+function hideElement(element) {
+    if (element) {
+        element.style.display = "none";
+    }
+}
+
+
+async function postJSON(url, data) {
+    const response = await fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+
+    let result;
+
+    try {
+        result = await response.json();
+    } catch {
+        throw new Error("Invalid response from server.");
+    }
+
+    if (!response.ok || result.success === false) {
+        throw new Error(
+            result.error || "Something went wrong."
+        );
+    }
+
+    return result;
+}
+
+
+// -----------------------------------------------------
+// 5. SPEECH OUTPUT
+// -----------------------------------------------------
+
+function speak(text) {
+    if (!("speechSynthesis" in window)) {
+        return;
+    }
+
+    if (!text) return;
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    utterance.lang = languageInfo().locale;
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+
+    const voices = window.speechSynthesis.getVoices();
+
+    const preferredVoice = voices.find(voice =>
+        voice.lang.toLowerCase().startsWith(
+            languageCode()
+        )
+    );
+
+    if (preferredVoice) {
+        utterance.voice = preferredVoice;
+    }
+
+    window.speechSynthesis.speak(utterance);
+}
+
+
+// -----------------------------------------------------
+// 6. STOP VOICE INPUT
+// -----------------------------------------------------
+
+function stopListening() {
+    if (recognition) {
+        try {
+            recognition.stop();
+        } catch (error) {
+            console.log("Recognition already stopped.");
+        }
+
+        recognition = null;
+    }
+}
+
+
+// -----------------------------------------------------
+// 7. MANUAL VOICE INPUT
+// -----------------------------------------------------
+
+function listenOnce() {
+    stopListening();
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        setMessage(msg("notSupported"));
+        speak(msg("notSupported"));
+        return;
+    }
+
+    const input = document.getElementById("sfAnswerInput");
+
+    if (!input) return;
+
+    recognition = new SpeechRecognition();
+
+    recognition.lang = languageInfo().locale;
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    const status = sf("VoiceStatus");
+
+    if (status) {
+        status.textContent = msg("listening");
+    }
+
+    recognition.onresult = function(event) {
+        const spokenText =
+            event.results[0][0].transcript.trim();
+
+        input.value = spokenText;
+
+        if (status) {
+            status.textContent = "";
+        }
+
+        clearMessage();
+    };
+
+    recognition.onerror = function(event) {
+        console.log("Voice recognition error:", event.error);
+
+        if (status) {
+            status.textContent = msg("notSupported");
+        }
+    };
+
+    recognition.onend = function() {
+        recognition = null;
+
+        if (status && status.textContent === msg("listening")) {
+            status.textContent = "";
+        }
+    };
+
+    try {
+        recognition.start();
+    } catch (error) {
+        console.error(error);
+
+        if (status) {
+            status.textContent = msg("notSupported");
+        }
+    }
+}
+
+
+// -----------------------------------------------------
+// 8. TRANSLATION
+// -----------------------------------------------------
+
+async function translateText(
+    text,
+    mode,
+    field = {}
+) {
+    if (!text) return text;
+
+    if (languageCode() === "en") {
+        return text;
+    }
+
+    const cacheKey = [
+        languageCode(),
+        mode,
+        field.label || "",
+        text
+    ].join("|");
+
+    if (translationCache[cacheKey]) {
+        return translationCache[cacheKey];
+    }
+
+    const result = await postJSON(
+        "/smart-form-assistant/translate",
+        {
+            text: text,
+            language: languageCode(),
+            mode: mode,
+            fieldType: field.type || "text",
+            fieldLabel: field.label || ""
+        }
+    );
+
+    translationCache[cacheKey] = result.translated;
+
+    return result.translated;
+}
+
+
+// -----------------------------------------------------
+// 9. GET CURRENT FIELD
+// -----------------------------------------------------
+
+function currentField() {
+    return fields[current];
+}
+
+
+// -----------------------------------------------------
+// 10. UPDATE PROGRESS
+// -----------------------------------------------------
+
+function updateProgress() {
+    const total = fields.length;
+    const completed = current;
+
+    const percentage = total
+        ? Math.round((completed / total) * 100)
+        : 0;
+
+    const progressText = sf("ProgressText");
+    const progressPercent = sf("ProgressPercent");
+    const progressBar = sf("ProgressBar");
+
+    if (progressText) {
+        progressText.textContent =
+            `${msg("question")} ${Math.min(current + 1, total)} ${msg("of")} ${total}`;
+    }
+
+    if (progressPercent) {
+        progressPercent.textContent = percentage + "%";
+    }
+
+    if (progressBar) {
+        progressBar.style.width = percentage + "%";
+    }
+}
+
+
+// -----------------------------------------------------
+// 11. RENDER ANSWER INPUT
+// -----------------------------------------------------
+
+function renderAnswerInput(field) {
+    const container = sf("AnswerArea");
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const fieldType = (field.type || "text").toLowerCase();
+
+    let input;
+
+    if (fieldType === "select") {
+
+        input = document.createElement("select");
+
+        const defaultOption = document.createElement("option");
+
+        defaultOption.value = "";
+        defaultOption.textContent = msg("selectOption");
+
+        input.appendChild(defaultOption);
+
+        (field.options || []).forEach(option => {
+            const optionElement = document.createElement("option");
+
+            optionElement.value = option.value;
+            optionElement.textContent = option.text;
+
+            input.appendChild(optionElement);
+        });
+
+    } else if (fieldType === "textarea") {
+
+        input = document.createElement("textarea");
+        input.rows = 4;
+
+    } else if (fieldType === "checkbox") {
+
+        input = document.createElement("input");
+        input.type = "checkbox";
+
+    } else {
+
+        input = document.createElement("input");
+
+        const allowedTypes = [
+            "text", "email", "tel",
+            "number", "date", "url"
+        ];
+
+        input.type = allowedTypes.includes(fieldType)
+            ? fieldType
+            : "text";
+    }
+
+    input.id = "sfAnswerInput";
+
+    if (field.placeholder && input.type !== "checkbox") {
+        input.placeholder = field.placeholder;
+    } else if (
+        input.tagName !== "SELECT" &&
+        input.type !== "checkbox"
+    ) {
+        input.placeholder = msg("answerPlaceholder");
+    }
+
+    if (field.required) {
+        input.required = true;
+    }
+
+    if (fieldType === "checkbox") {
+        input.checked = answers[current] === "true";
+    } else {
+        input.value = answers[current] ?? "";
+    }
+
+    input.className = "sf-answer-input";
+
+    container.appendChild(input);
+}
+
+
+// -----------------------------------------------------
+// 12. GET CURRENT ANSWER
+// -----------------------------------------------------
+
+function getCurrentAnswer() {
+    const input = document.getElementById("sfAnswerInput");
+
+    if (!input) return "";
+
+    if (input.type === "checkbox") {
+        return input.checked ? "true" : "false";
+    }
+
+    return input.value.trim();
+}
+
+
+// -----------------------------------------------------
+// 13. DISPLAY QUESTION
+// -----------------------------------------------------
+
+async function displayQuestion() {
+    stopListening();
+    window.speechSynthesis?.cancel();
+
+    clearMessage();
+
+    const field = currentField();
+
+    if (!field) {
+        showReview();
+        return;
+    }
+
+    hideElement(sf("Review"));
+    showElement(sf("QuestionCard"));
+    hideElement(sf("ConfirmBox"));
+
+    updateProgress();
+
+    const questionLabel = sf("QuestionLabel");
+    const questionHelp = sf("QuestionHelp");
+
+    if (questionLabel) {
+        questionLabel.textContent = "Loading question...";
+    }
+
+    try {
+        const translatedQuestion = await translateText(
+            field.label,
+            "question",
+            field
+        );
+
+        if (questionLabel) {
+            questionLabel.textContent = translatedQuestion;
+        }
+
+        if (questionHelp) {
+            questionHelp.textContent = field.required
+                ? msg("requiredField")
+                : msg("optionalField");
+        }
+
+        renderAnswerInput(field);
+
+        const speakButton = sf("SpeakAnswer");
+
+        if (speakButton) {
+            speakButton.textContent = msg("speak");
+        }
+
+        const checkButton = sf("Check");
+
+        if (checkButton) {
+            checkButton.textContent = msg("check");
+        }
+
+        const backButton = sf("Back");
+
+        if (backButton) {
+            backButton.textContent = msg("back");
+            backButton.disabled = current === 0;
+        }
+
+        speak(translatedQuestion);
+
+    } catch (error) {
+        console.error(error);
+
+        if (questionLabel) {
+            questionLabel.textContent = field.label;
+        }
+
+        renderAnswerInput(field);
+
+        setMessage(msg("questionError"));
+    }
+}
+
+
+// -----------------------------------------------------
+// 14. VALIDATE ANSWER
+// -----------------------------------------------------
+
+async function checkAnswer() {
+    stopListening();
+
+    clearMessage();
+
+    const field = currentField();
+
+    if (!field) return;
+
+    const value = getCurrentAnswer();
+
+    if (field.required && !value) {
+        setMessage(msg("required"));
+        speak(msg("required"));
+        return;
+    }
+
+    try {
+        let finalValue = value;
+
+        // Translate ordinary text answers into English.
+        // Protected types are left unchanged by the backend.
+        if (value && !["checkbox", "select"].includes(field.type)) {
+            finalValue = await translateText(
+                value,
+                "answer",
+                field
+            );
+        }
+
+        // IMPORTANT:
+        // The backend expects flattened field properties.
+        const result = await postJSON(
+            "/smart-form-assistant/validate",
+            {
+                value: finalValue,
+                label: field.label,
+                type: field.type,
+                required: field.required,
+                language: languageCode()
+            }
+        );
+
+        if (!result.valid) {
+            setMessage(result.message);
+            speak(result.message);
+            return;
+        }
+
+        answers[current] = finalValue;
+        lastValidated = true;
+
+        showConfirmation(finalValue);
+
+    } catch (error) {
+        console.error(error);
+
+        setMessage(error.message);
+        speak(error.message);
+    }
+}
+
+
+// -----------------------------------------------------
+// 15. SHOW CONFIRMATION
+// -----------------------------------------------------
+
+async function showConfirmation(value) {
+    hideElement(sf("QuestionCard"));
+    showElement(sf("ConfirmBox"));
+
+    const confirmText = sf("ConfirmText");
+
+    let displayValue = value;
+
+    if (confirmText) {
+        confirmText.textContent =
+            `Your answer: ${displayValue}`;
+    }
+
+    const editButton = sf("Edit");
+    const confirmButton = sf("Confirm");
+
+    if (editButton) {
+        editButton.textContent = msg("edit");
+    }
+
+    if (confirmButton) {
+        confirmButton.textContent = msg("confirm");
+    }
+
+    const spokenMessage =
+        languageCode() === "en"
+            ? `You entered ${displayValue}. Is this correct?`
+            : await translateText(
+                `You entered ${displayValue}. Is this correct?`,
+                "question",
+                { type: "text" }
+            );
+
+    speak(spokenMessage);
+}
+
+
+// -----------------------------------------------------
+// 16. EDIT CURRENT ANSWER
+// -----------------------------------------------------
+
+function editAnswer() {
+    hideElement(sf("ConfirmBox"));
+    showElement(sf("QuestionCard"));
+
+    renderAnswerInput(currentField());
+
+    const input = document.getElementById("sfAnswerInput");
+
+    if (input) {
+        input.focus();
+    }
+}
+
+
+// -----------------------------------------------------
+// 17. MOVE TO NEXT QUESTION
+// -----------------------------------------------------
+
+function nextQuestion() {
+    stopListening();
+
+    current++;
+
+    if (current >= fields.length) {
+        showReview();
+    } else {
+        displayQuestion();
+    }
+}
+
+
+// -----------------------------------------------------
+// 18. MOVE TO PREVIOUS QUESTION
+// -----------------------------------------------------
+
+function previousQuestion() {
+    if (current <= 0) return;
+
+    stopListening();
+
+    current--;
+
+    displayQuestion();
+}
+
+
+// -----------------------------------------------------
+// 19. REVIEW ANSWERS
+// -----------------------------------------------------
+
+function showReview() {
+    stopListening();
+
+    hideElement(sf("QuestionCard"));
+    hideElement(sf("ConfirmBox"));
+    showElement(sf("Review"));
+
+    updateProgress();
+
+    const reviewList = sf("ReviewList");
+
+    if (!reviewList) return;
+
+    reviewList.innerHTML = "";
+
+    fields.forEach((field, index) => {
+
+        const item = document.createElement("div");
+        item.className = "sf-review-item";
+
+        const title = document.createElement("h4");
+        title.textContent = field.label;
+
+        const answer = document.createElement("p");
+        answer.textContent = answers[index] ?? "";
+
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.textContent = msg("editAnswer");
+
+        editButton.addEventListener("click", () => {
+            current = index;
+            displayQuestion();
+        });
+
+        item.appendChild(title);
+        item.appendChild(answer);
+        item.appendChild(editButton);
+
+        reviewList.appendChild(item);
+    });
+
+    const finishButton = sf("Finish");
+
+    if (finishButton) {
+        finishButton.textContent = msg("finish");
+    }
+
+    const reviewBack = sf("ReviewBack");
+
+    if (reviewBack) {
+        reviewBack.textContent = msg("back");
+    }
+}
+
+
+// -----------------------------------------------------
+// 20. SUBMIT APPLICATION
+// -----------------------------------------------------
+
+async function finishApplication() {
+    stopListening();
+
+    const finishMessage = sf("FinishMessage");
+    const finishButton = sf("Finish");
+
+    if (finishMessage) {
+        finishMessage.textContent = msg("submitting");
+    }
+
+    if (finishButton) {
+        finishButton.disabled = true;
+    }
+
+    try {
+        const result = await postJSON(
+            "/smart-form-assistant/submit",
+            {
+                url: formUrl,
+                fields: fields,
+                answers: answers
+            }
+        );
+
+        if (finishMessage) {
+            finishMessage.textContent =
+                result.message || msg("submitted");
+        }
+
+        speak(result.message || msg("submitted"));
+
+    } catch (error) {
+        console.error(error);
+
+        if (finishMessage) {
+            finishMessage.textContent = error.message;
+        }
+
+        speak(error.message);
+
+    } finally {
+        if (finishButton) {
+            finishButton.disabled = false;
+        }
+    }
+}
+
+
+// -----------------------------------------------------
+// 21. LOAD FORM
+// -----------------------------------------------------
+
+async function loadForm() {
+    stopListening();
+
+    clearMessage();
+
+    const urlInput = sf("FormUrl");
+    const loadError = sf("LoadError");
+    const loadButton = sf("LoadButton");
+
+    formUrl = urlInput?.value.trim() || "";
+
+    if (!formUrl) {
+        if (loadError) {
+            loadError.textContent = "Please enter a form URL.";
+        }
+        return;
+    }
+
+    if (loadButton) {
+        loadButton.disabled = true;
+        loadButton.textContent = "Loading...";
+    }
+
+    if (loadError) {
+        loadError.textContent = "";
+    }
+
+    try {
+        const result = await postJSON(
+            "/smart-form-assistant/analyze",
+            {
+                url: formUrl
+            }
+        );
+
+        fields = result.fields || [];
+
+        if (!fields.length) {
+            throw new Error(msg("noFields"));
+        }
+
+        answers = fields.map(() => "");
+        current = 0;
+        translationCache = {};
+
+        hideElement(sf("LoadForm"));
+        showElement(sf("Assistant"));
+
+        const summary = sf("Summary");
+
+        if (summary) {
+            summary.textContent =
+                `${fields.length} form fields detected.`;
+        }
+
+        displayQuestion();
+
+    } catch (error) {
+        console.error(error);
+
+        if (loadError) {
+            loadError.textContent = error.message || msg("loadError");
+        }
+
+    } finally {
+        if (loadButton) {
+            loadButton.disabled = false;
+            loadButton.textContent = "Load Form";
+        }
+    }
+}
+
+
+// -----------------------------------------------------
+// 22. LOAD DEMO FORM
+// -----------------------------------------------------
+
+function loadDemoForm() {
+    const urlInput = sf("FormUrl");
+
+    if (!urlInput) return;
+
+    urlInput.value =
+        "http://127.0.0.1:8000/demo_test_form.html";
+
+    loadForm();
+}
+
+
+// -----------------------------------------------------
+// 23. CHANGE LANGUAGE
+// -----------------------------------------------------
+
+function changeLanguage() {
+    stopListening();
+
+    translationCache = {};
+
+    if (fields.length > 0 && current < fields.length) {
+        displayQuestion();
+    } else if (sf("Review")?.style.display !== "none") {
+        showReview();
+    }
+}
+
+
+// -----------------------------------------------------
+// 24. INITIALIZE EVENT LISTENERS
+// -----------------------------------------------------
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    sf("LoadButton")?.addEventListener(
+        "click",
+        loadForm
+    );
+
+    sf("DemoButton")?.addEventListener(
+        "click",
+        loadDemoForm
+    );
+
+    sf("SpeakAnswer")?.addEventListener(
+        "click",
+        listenOnce
+    );
+
+    sf("Check")?.addEventListener(
+        "click",
+        checkAnswer
+    );
+
+    sf("Edit")?.addEventListener(
+        "click",
+        editAnswer
+    );
+
+    sf("Confirm")?.addEventListener(
+        "click",
+        nextQuestion
+    );
+
+    sf("Back")?.addEventListener(
+        "click",
+        previousQuestion
+    );
+
+    sf("ReviewBack")?.addEventListener(
+        "click",
+        function() {
+            current = Math.max(0, fields.length - 1);
+            displayQuestion();
+        }
+    );
+
+    sf("Finish")?.addEventListener(
+        "click",
+        finishApplication
+    );
+
+    sf("ChangeForm")?.addEventListener(
+        "click",
+        function() {
+            stopListening();
+
+            fields = [];
+            answers = [];
+            current = 0;
+
+            hideElement(sf("Assistant"));
+            showElement(sf("LoadForm"));
+        }
+    );
+
+    sf("Language")?.addEventListener(
+        "change",
+        changeLanguage
+    );
+
+    // Hide sections that should not appear initially.
+    hideElement(sf("Assistant"));
+    hideElement(sf("Review"));
+    hideElement(sf("ConfirmBox"));
+
+});

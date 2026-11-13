@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice-Based Student Details Form</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px #ccc;
+        }
+
+        h2 {
+            text-align: center;
+            color: #245bd6;
+        }
+
+        label {
+            display: block;
+            margin-top: 18px;
+            font-weight: bold;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        input {
+            flex: 1;
+            min-width: 0;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .mic {
+            width: 48px;
+            border: none;
+            border-radius: 6px;
+            background: #e7edff;
+            color: #245bd6;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .mic:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .error {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .status {
+            color: #245bd6;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        button.submit {
+            width: 100%;
+            padding: 12px;
+            margin-top: 25px;
+            background: #245bd6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #success {
+            display: none;
+            background: #e8f6ed;
+            color: green;
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 6px;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2>Student Details Form</h2>
+
+    <form id="studentForm" novalidate>
+
+        <!-- Student Name -->
+        <label>Student Name</label>
+        <div class="input-row">
+            <input type="text" id="studentName"
+                   placeholder="Enter student name">
+            <button type="button" class="mic"
+                    data-field="studentName">🎙</button>
+        </div>
+        <div class="status" id="studentNameStatus"></div>
+        <div class="error" id="studentNameError"></div>
+
+        <!-- Roll Number -->
+        <label>Roll Number</label>
+        <div class="input-row">
+            <input type="text" id="rollNumber"
+                   placeholder="Example: 1RR23CS001">
+            <button type="button" class="mic"
+                    data-field="rollNumber">🎙</button>
+        </div>
+        <div class="status" id="rollNumberStatus"></div>
+        <div class="error" id="rollNumberError"></div>
+
+        <!-- Father's Name -->
+        <label>Father's Name</label>
+        <div class="input-row">
+            <input type="text" id="fatherName"
+                   placeholder="Enter father's name">
+            <button type="button" class="mic"
+                    data-field="fatherName">🎙</button>
+        </div>
+        <div class="status" id="fatherNameStatus"></div>
+        <div class="error" id="fatherNameError"></div>
+
+        <!-- Home Location -->
+        <label>Home Location</label>
+        <div class="input-row">
+            <input type="text" id="homeLocation"
+                   placeholder="Enter home location">
+            <button type="button" class="mic"
+                    data-field="homeLocation">🎙</button>
+        </div>
+        <div class="status" id="homeLocationStatus"></div>
+        <div class="error" id="homeLocationError"></div>
+
+        <button type="submit" class="submit">
+            Submit Details
+        </button>
+
+        <div id="success"></div>
+
+    </form>
+</div>
+
+<script>
+
+    const form = document.getElementById("studentForm");
+
+    // NAME VALIDATION
+    function validateName(id, label) {
+
+        let value = document.getElementById(id).value.trim();
+        let error = document.getElementById(id + "Error");
+
+        if (value === "") {
+            error.innerText = label + " is required.";
+            return false;
+        }
+
+        let pattern = /^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/;
+
+        if (!pattern.test(value)) {
+            error.innerText =
+                "Invalid Answer! Enter letters only.";
+            return false;
+        }
+
+        error.innerText = "";
+        return true;
+    }
+
+    // ROLL NUMBER VALIDATION
+    function validateRollNumber() {
+
+        let value =
+            document.getElementById("rollNumber").value.trim();
+
+        let error =
+            document.getElementById("rollNumberError");
+
+        if (value === "") {
+            error.innerText = "Roll number is required.";
+            return false;
+        }
+
+        // Must contain at least one letter and one number
+        let pattern =
+            /^(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9-]{2,20}$/;
+
+        if (!pattern.test(value)) {
+            error.innerText =
+                "Invalid Answer! Enter a valid roll number.";
+            return false;
+        }
+
+        error.innerText = "";
+        return true;
+    }
+
+    // HOME LOCATION VALIDATION
+    function validateLocation() {
+
+        let value =
+            document.getElementById("homeLocation").value.trim();
+
+        let error =
+            document.getElementById("homeLocationError");
+
+        if (value === "") {
+            error.innerText = "Home location is required.";
+            return false;
+        }
+
+        let pattern = /^[A-Za-z0-9][A-Za-z0-9 ,.'-]{1,79}$/;
+
+        if (!pattern.test(value)) {
+            error.innerText =
+                "Invalid Answer! Enter a valid location.";
+            return false;
+        }
+
+        error.innerText = "";
+        return true;
+    }
+
+    // VALIDATE INDIVIDUAL FIELDS
+    function validateField(id) {
+
+        if (id === "studentName") {
+            return validateName(id, "Student name");
+        }
+
+        if (id === "fatherName") {
+            return validateName(id, "Father's name");
+        }
+
+        if (id === "rollNumber") {
+            return validateRollNumber();
+        }
+
+        if (id === "homeLocation") {
+            return validateLocation();
+        }
+
+        return false;
+    }
+
+    // VOICE INPUT
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    document.querySelectorAll(".mic").forEach(button => {
+
+        button.addEventListener("click", function() {
+
+            let fieldId = this.dataset.field;
+
+            let input =
+                document.getElementById(fieldId);
+
+            let status =
+                document.getElementById(fieldId + "Status");
+
+            if (!SpeechRecognition) {
+                status.innerText =
+                    "Voice input is not supported. Please use Chrome.";
+                return;
+            }
+
+            let recognition = new SpeechRecognition();
+
+            recognition.lang = "en-IN";
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            status.innerText = "Listening... Speak now.";
+            this.disabled = true;
+
+            recognition.onresult = function(event) {
+
+                let spokenText =
+                    event.results[0][0].transcript.trim();
+
+                input.value = spokenText;
+
+                status.innerText = "Voice input received.";
+
+                validateField(fieldId);
+
+                document.getElementById("success").style.display =
+                    "none";
+            };
+
+            recognition.onerror = function(event) {
+
+                status.innerText =
+                    "Could not recognise speech. Please try again.";
+
+                if (event.error === "not-allowed") {
+                    status.innerText =
+                        "Allow microphone permission in Chrome.";
+                }
+            };
+
+            recognition.onend = () => {
+                button.disabled = false;
+            };
+
+            recognition.start();
+
+        });
+
+    });
+
+    // VALIDATE WHILE TYPING
+    ["studentName", "rollNumber",
+     "fatherName", "homeLocation"].forEach(id => {
+
+        document.getElementById(id).addEventListener(
+            "input", function() {
+
+                validateField(id);
+
+                document.getElementById("success").style.display =
+                    "none";
+            }
+        );
+
+    });
+
+    // FORM SUBMISSION
+    form.addEventListener("submit", function(event) {
+
+        event.preventDefault();
+
+        let validName =
+            validateName("studentName", "Student name");
+
+        let validRoll =
+            validateRollNumber();
+
+        let validFather =
+            validateName("fatherName", "Father's name");
+
+        let validLocation =
+            validateLocation();
+
+        if (
+            validName &&
+            validRoll &&
+            validFather &&
+            validLocation
+        ) {
+
+            let name =
+                document.getElementById("studentName").value.trim();
+
+            let roll =
+                document.getElementById("rollNumber").value.trim();
+
+            let father =
+                document.getElementById("fatherName").value.trim();
+
+            let location =
+                document.getElementById("homeLocation").value.trim();
+
+            let success =
+                document.getElementById("success");
+
+            success.innerHTML =
+                "<b>Student Details Submitted Successfully!</b><br><br>" +
+                "Student Name: " + escapeHTML(name) + "<br>" +
+                "Roll Number: " + escapeHTML(roll) + "<br>" +
+                "Father's Name: " + escapeHTML(father) + "<br>" +
+                "Home Location: " + escapeHTML(location);
+
+            success.style.display = "block";
+
+        } else {
+
+            document.getElementById("success").style.display =
+                "none";
+
+        }
+
+    });
+
+    // SAFELY DISPLAY USER INPUT
+    function escapeHTML(value) {
+
+        return value.replace(/[&<>"']/g, character => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[character]);
+
+    }
+
+</script>
+
+</body>
+</html>
